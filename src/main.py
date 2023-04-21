@@ -1,13 +1,11 @@
 from text_preprocessor import TextPreprocessor
 from GPT3 import GPT3
 
-
 def main():
     # Load data and preprocess text
-    df = pd.read_csv('blogs.csv')
+    df = pd.read_csv('../data/input_blogs.csv')
     preprocessor = TextPreprocessor()
     df.loc[:, "text"] = df.loc[:, "blog"].apply(preprocessor.preprocess)
-    df.to_feather("processed_blogs.feather")
 
     # Initialize GPT3
     gpt3 = GPT3()
