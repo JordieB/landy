@@ -1,14 +1,14 @@
-import os
 import re
 import string
-import pandas as pd
-import openai
-from bs4 import BeautifulSoup
 from functools import reduce
+from unicodedata import normalize
+
+from bs4 import BeautifulSoup
+import nltk
 from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
 from nltk.stem import WordNetLemmatizer
-from unicodedata import normalize
+
 
 class TextPreprocessor:
     """
@@ -17,15 +17,16 @@ class TextPreprocessor:
     def __init__(self):
         # Define preprocessing steps
         self.steps = [
-            self.convert_to_lowercase,
+            # self.convert_to_lowercase,
             self.remove_html_tags,
             self.remove_urls,
             self.norm_unicode_data,
-            self.tokenize,
-            self.remove_punctuation,
-            self.remove_stopwords,
-            self.lemmatize,
-            self.tokens_to_text,
+            self.replace_newlines,
+            # self.tokenize,
+            # self.remove_punctuation,
+            # self.remove_stopwords,
+            # self.lemmatize,
+            # self.tokens_to_text,
         ]
 
     def preprocess(self, text):
@@ -92,6 +93,19 @@ class TextPreprocessor:
             str: Text with normalized unicode data.
         """
         return normalize("NFKD", text)
+
+    @staticmethod
+    def replace_newlines(text):
+        """
+        Replace newline characters with whitespace.
+
+        Args:
+            text (str): Input text.
+
+        Returns:
+            str: Text with whitespace instead of newlines.
+        """
+        return text.replace('\n',' ')
 
     @staticmethod
     def tokenize(text):
