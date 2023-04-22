@@ -5,7 +5,7 @@ if __name__ == '__main__':
     openai.api_key = os.environ['OPENAPI_API_KEY']
 
     # Load data and preprocess text
-    df = pd.read_csv('./data/input_blogs.csv')
+    df = pd.read_csv('../data/input_blogs.csv')
     preprocessor = TextPreprocessor()
     df.loc[:, "text"] = df.loc[:, "blog"].apply(preprocessor.preprocess)
 
