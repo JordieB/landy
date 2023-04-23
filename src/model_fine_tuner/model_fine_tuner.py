@@ -48,6 +48,6 @@ if __name__ == "__main__":
         ("What is the largest planet in our solar system?", "The largest planet in our solar system is Jupiter.")
     ]
 
-    model_fine_tuner = ModelFineTuner(model_id="text-davinci-003")
-    fine_tuned_model_id = model_fine_tuner.fine_tune(question_answer_pairs)
-    print(f"Fine-tuned model ID: {fine_tuned_model_id}")
+    # model_fine_tuner = ModelFineTuner(model_id="gpt-3.5-turbo")
+    # fine_tuned_model_id = model_fine_tuner.fine_tune(question_answer_pairs)
+    # print(f"Fine-tuned model ID: {fine_tuned_model_id}")
