@@ -1,43 +1,29 @@
 from text_preprocessor import TextPreprocessor
 import time
 
-if __name__ == '__main__':
-    openai.api_key = os.environ['OPENAPI_API_KEY']
+# Check if the script is being run as the main module
+if '__main__' == __name__:
+    # Retrieve OpenAI API key from secrets
+    openai_api_key = dbutils.secrets.get(scope='api_tokens', key='openai')
+    os.environ['OPENAI_API_KEY'] = openai_api_key
 
-    # Load data and preprocess text
-    df = pd.read_csv('/Workspace/Repos/jordie.belle@proton.me/dfo_chatbot/data/input_blogs.csv')
+    # Initialize required components
     preprocessor = TextPreprocessor()
-    df.loc[:, "text"] = df.loc[:, "blog"].apply(preprocessor.preprocess)
+    text_splitter = CharacterTextSplitter(chunk_size=1000, chunk_overlap=0)
+    embeddings = OpenAIEmbeddings()
+    llm = OpenAI(temperature=0.9, model_name='text-davinci-003')
 
-    # long_text = df['text'][35]
-    max_tokens_per_chunk = 3000
-    question = "Can you send me high-quality question-answer pairs based on the text?"
+    # Create a LangChainHandler instance
+    lc = LangChainHandler(preprocessor, text_splitter, embeddings, llm)
 
-    token_counter = TokenCounter()
-    text_splitter = TextSplitter(token_counter, max_tokens_per_chunk)
-    text_summarizer = TextSummarizer()
-    question_asker = QuestionAsker()
+    # Extract docs from _sqldf
+    posts = [row[0] for row in _sqldf.collect()]
 
-    # answers = []
-    df_rows = df.loc[231:,:].iterrows()
-    retry_delay = 5 * 60
-    max_retries = 5
+    # Define the query to be asked
+    query = 'How should I gear my character after I reach level 110?'
 
-    for index, row in df_rows:
-        text_processor = TextProcessor(text_splitter, text_summarizer, question_asker)
-        try:
-            answer = text_processor.summarize_and_ask_question(row['text'], question)
-            answers.append(answer)
-        except Exception as e:
-            error_message = str(e)
-            if "That model is currently overloaded with other requests" in error_message:
-                # Retry after waiting some time
-                for attempt in range(1, max_retries + 1):
-                    time.sleep(retry_delay)
-                    try:
-                        answer = text_processor.summarize_and_ask_question(row['text'], question)
-                        answers.append(answer)
-                    except Exception as e:
-                        raise Exception(f'At {index}, {e}')
-            else:
-                raise Exception(f'At {index}, {e}')
+    # Get the answer for the query based on the documents
+    answer = lc.ask_doc_based_question(posts, query)
+
+    # Print the answer
+    print(answer)
