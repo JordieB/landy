@@ -10,13 +10,13 @@ class LangChainHandler:
     """
     A class for handling the LangChain library components.
     """
-    def __init__(self, preprocessor, text_splitter, embedder, llm):
+    def __init__(self):
         self.preprocessor = TextPreprocessor()
         self.text_splitter = CharacterTextSplitter(chunk_size=1000, chunk_overlap=0)
         self.embedder = OpenAIEmbeddings()
-        self.llm = OpenAI(api_key=openai_api_key,
-                temperature=0.9,
-             model_name='text-davinci-003')
+        self.llm = OpenAI(api_key=os.environ['OPENAI_API_KEY'] ,
+                          temperature=0.9,
+                          model_name='text-davinci-003')
         self.template = '===\nContext: {doc}\n===\n\nQ: {question}\nA:'
         
     def process_texts(self, texts: List[str]) -> List[str]:

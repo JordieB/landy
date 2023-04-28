@@ -1,45 +1,34 @@
-import discord
-from dotenv import load_dotenv
 import os
-from lang_chain_handler import LangChainHandler
-from text_preprocessor import TextPreprocessor
-from utils.discord_helper import DiscordHelper
-from utils.logger import Logger
-
-load_dotenv()  # Load environment variables from .env file
+from discord.ext import commands
+from utils.lc_handler import LangChainHandler
 
 # Set up logging
 logger = Logger(__name__).get_logger()
 
-# Set up Discord client
-client = discord.Client()
+# Retrieve  Discord API token from secrets
+discord_api_token = os.environ['DISCORD_API_TOKEN']
 
-# Set up TextPreprocessor
-preprocessor = TextPreprocessor()
+# Create a LangChainHandler instance
+lc = LangChainHandler()
 
-# Set up LangChainHandler
-lc_handler = LangChainHandler(preprocessor)
+# Set up the Discord bot
+bot = commands.Bot(command_prefix='!')
 
-# Set up DiscordHelper
-discord_helper = DiscordHelper(client, lc_handler)
+# Set-up data
+df = pd.read_csv('../data/input_blogs.csv')
+posts = [row[0] for row in df.values]
 
+@bot.command()
+async def ask(ctx, *, question):
+    global posts
+    global lc
 
-@client.event
-async def on_ready():
-    logger.info(f'{client.user} has connected to Discord!')
+    # Get the answer for the query based on the documents
+    answer = lc.ask_doc_based_question(posts, question)
 
-
-@client.event
-async def on_message(message):
-    if message.author == client.user:
-        return
-
-    # Pass message to DiscordHelper to handle
-    response = await discord_helper.handle_message(message)
-
-    if response:
-        await message.channel.send(response)
+    # Send the answer back to the user
+    await ctx.send(answer)
 
 
 if __name__ == '__main__':
-    client.run(os.getenv('DISCORD_TOKEN'))
+    bot.run(discord_api_token)
