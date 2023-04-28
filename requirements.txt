@@ -1,0 +1,8 @@
+discord
+tiktoken
+openai
+chromadb
+sentence_transformers
+langchain
+beautifulsoup4
+nltk
