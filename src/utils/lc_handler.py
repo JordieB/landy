@@ -5,6 +5,7 @@ from langchain.embeddings.openai import OpenAIEmbeddings
 from langchain.text_splitter import CharacterTextSplitter
 from langchain.vectorstores import Chroma
 from langchain import PromptTemplate
+from text_preprocessor import TextPreprocessor
 
 class LangChainHandler:
     """
