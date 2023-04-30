@@ -5,7 +5,6 @@ from langchain.embeddings.openai import OpenAIEmbeddings
 from langchain.text_splitter import CharacterTextSplitter
 from langchain.vectorstores import Chroma
 from langchain import PromptTemplate
-from text_preprocessor import TextPreprocessor
 
 class LangChainHandler:
     """
@@ -30,12 +29,7 @@ class LangChainHandler:
         Returns:
             List[str]: A list of processed texts.
         """
-        processed_texts = []
-        for text in texts:
-            preprocessed = self.preprocessor.preprocess(text)
-            split_texts = self.text_splitter.split_text(preprocessed)
-            processed_texts += split_texts
-        return processed_texts
+        return [self.preprocessor.preprocess(text) for text in texts]
 
     def create_documents(self, processed_texts: List[str]) -> List[Document]:
         """
@@ -47,7 +41,8 @@ class LangChainHandler:
         Returns:
             List[Document]: A list of Document objects.
         """
-        self.docs = [Document(page_content=text) for text in processed_texts]
+        docs = [Document(page_content=text) for text in processed_texts]
+        self.docs = text_splitter.split_documents(docs)
         return self.docs
 
     def create_chroma_db(self, docs: List[Document], embeddings) -> Chroma:
