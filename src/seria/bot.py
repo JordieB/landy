@@ -3,12 +3,11 @@ import pandas as pd
 from discord.ext import commands
 from discord import Intents
 from utils.lc_handler import LangChainHandler
-from utils.logger import Logger, decolor_discord_logging
+from utils.logger import DiscordLogger
 
 
-# Set up logging
-logger = Logger(__name__).get_logger()
-decolor_discord_logging()
+# Set up custom logging for the discord.py library
+discord_logger = DiscordLogger()
 
 # Set up the Discord bot
 intents = Intents.default()
@@ -34,4 +33,4 @@ async def ask(ctx, *, question):
 
 
 if __name__ == '__main__':
-    bot.run(os.environ['DISCORD_API_TOKEN'])
+    bot.run(os.environ['DISCORD_API_TOKEN'], log_handler=discord_logger.handler)
