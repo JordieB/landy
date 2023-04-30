@@ -15,32 +15,23 @@ intents.message_content = True
 bot = commands.Bot(command_prefix='!', intents=intents)
 
 
-# Create a LangChainHandler instance
-lc = LangChainHandler()
-# Set-up data
-# df = pd.read_csv('seria/data/input_blogs.csv')
-df = pd.read_csv('data/input_blogs.csv')
-posts = [row[0] for row in df.values]
-docs = lc.process_texts(posts)
-lc.create_chroma_db(docs)
-
-
-# @bot.command()
-# async def ask(ctx, *, question):
-#     global posts
-#     global lc
+@bot.command()
+async def ask(ctx, *, question):
+    global posts
+    global lc
     
-#     # Create a LangChainHandler instance
-#     lc = LangChainHandler()
-#     # Set-up data
-#     df = pd.read_csv('seria/data/input_blogs.csv')
-#     posts = [row[0] for row in df.values]
-#     # Get the answer for the query based on the documents
-#     answer = lc.ask_doc_based_question(posts, question)
+    # Create a LangChainHandler instance
+    lc = LangChainHandler()
+    # Set-up data
+    df = pd.read_csv('seria/data/input_blogs.csv')
+    posts = [row[0] for row in df.values]
+    # Get the answer for the query based on the documents
+    answer = lc.ask_doc_based_question(posts, question)
 
-#     # Send the answer back to the user
-#     await ctx.send(answer)
+    # Send the answer back to the user
+    await ctx.send(answer)
 
 
-# if __name__ == '__main__':
-#     bot.run(os.environ['DISCORD_API_TOKEN'], log_handler=discord_logger.handler)
+if __name__ == '__main__':
+    bot.run(os.environ['DISCORD_API_TOKEN'],
+            log_handler=discord_logger.handler)
