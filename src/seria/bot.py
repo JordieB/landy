@@ -1,6 +1,7 @@
 import os
 from discord.ext import commands
 from utils.lc_handler import LangChainHandler
+from utils.logger import Logger
 
 # Set up logging
 logger = Logger(__name__).get_logger()
