@@ -1,5 +1,6 @@
 # Ignore Chroma stores for now
 .chroma
+db
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

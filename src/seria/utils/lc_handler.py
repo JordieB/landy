@@ -35,18 +35,30 @@ class LangChainHandler:
         self.docs = self.text_splitter.split_documents(self.docs)
         return self.docs
 
-    def create_chroma_db(self, docs: List[Document], embeddings) -> Chroma:
+    def create_chroma_db(self, docs: List[str], persist_directory: str = 'db') -> Chroma:
         """
-        Create a Chroma database from the list of Document objects and embeddings.
-
+        Create a Chroma database if it does not already exist, or load an existing one.
+        
         Args:
-            docs (List[Document]): A list of Document objects.
-            embeddings: Embeddings to be used in Chroma.
+            docs (List[str]): A list of documents.
+            persist_directory (str, optional): The directory to store the database on disk.
+                                              Defaults to 'db'.
 
         Returns:
             Chroma: A Chroma database.
         """
-        self.db = Chroma.from_documents(docs, embeddings)
+        # logger.log('Attempt to load an existing DB...')
+        # If index already exists:
+        if os.path.isdir(persist_directory + '/index'):
+            self.db = Chroma(persist_directory=persist_directory,
+                             embedding_function=self.embedder)
+        # Else, make one from documents
+        else:
+            self.db = Chroma.from_documents(documents=docs,
+                                            embedding=self.embedder,
+                                            persist_directory=persist_directory)
+            self.db.persist()
+
         return self.db
 
     def _build_template(self) -> None:
