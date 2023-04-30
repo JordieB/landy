@@ -3,11 +3,12 @@ import pandas as pd
 from discord.ext import commands
 from discord import Intents
 from utils.lc_handler import LangChainHandler
-from utils.logger import Logger
+from utils.logger import Logger, decolor_discord_logging
 
 
 # Set up logging
 logger = Logger(__name__).get_logger()
+decolor_discord_logging()
 
 # Set up the Discord bot
 intents = Intents.default()
