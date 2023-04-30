@@ -10,9 +10,6 @@ from nltk.tokenize import word_tokenize
 from nltk.stem import WordNetLemmatizer
 
 
-nltk.download('popular')
-
-
 class TextPreprocessor:
     """
     Class for preprocessing text using a sequence of defined text processing steps.

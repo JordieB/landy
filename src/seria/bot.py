@@ -1,22 +1,23 @@
 import os
+import pandas as pd
 from discord.ext import commands
+from discord import Intents
 from utils.lc_handler import LangChainHandler
 from utils.logger import Logger
 
 # Set up logging
 logger = Logger(__name__).get_logger()
 
-# Retrieve  Discord API token from secrets
-discord_api_token = os.environ['DISCORD_API_TOKEN']
-
 # Create a LangChainHandler instance
 lc = LangChainHandler()
 
 # Set up the Discord bot
-bot = commands.Bot(command_prefix='!')
+intents = Intents.default()
+intents.message_content = True
+bot = commands.Bot(command_prefix='!', intents=intents)
 
 # Set-up data
-df = pd.read_csv('../data/input_blogs.csv')
+df = pd.read_csv('data/input_blogs.csv')
 posts = [row[0] for row in df.values]
 
 @bot.command()
@@ -32,4 +33,4 @@ async def ask(ctx, *, question):
 
 
 if __name__ == '__main__':
-    bot.run(discord_api_token)
+    bot.run(os.environ['DISCORD_API_TOKEN'])

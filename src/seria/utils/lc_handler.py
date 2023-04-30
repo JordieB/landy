@@ -1,11 +1,12 @@
+import os
 from typing import List
 from langchain.llms import OpenAI
 from langchain.docstore.document import Document
 from langchain.embeddings.openai import OpenAIEmbeddings
-from langchain.text_splitter import CharacterTextSplitter
+from langchain.text_splitter import TokenTextSplitter
 from langchain.vectorstores import Chroma
 from langchain import PromptTemplate
-from text_preprocessor import TextPreprocessor
+from .text_preprocessor import TextPreprocessor
 
 class LangChainHandler:
     """
@@ -13,10 +14,9 @@ class LangChainHandler:
     """
     def __init__(self):
         self.preprocessor = TextPreprocessor()
-        self.text_splitter = CharacterTextSplitter(chunk_size=1000, chunk_overlap=0)
+        self.text_splitter = TokenTextSplitter()
         self.embedder = OpenAIEmbeddings()
-        self.llm = OpenAI(api_key=os.environ['OPENAI_API_KEY'] ,
-                          temperature=0.9,
+        self.llm = OpenAI(temperature=0.9,
                           model_name='text-davinci-003')
         self.template = '===\nContext: {doc}\n===\n\nQ: {question}\nA:'
         
@@ -30,20 +30,9 @@ class LangChainHandler:
         Returns:
             List[str]: A list of processed texts.
         """
-        return [self.preprocessor.preprocess(text) for text in texts]
-
-    def create_documents(self, processed_texts: List[str]) -> List[Document]:
-        """
-        Create a list of Document objects from the processed texts.
-
-        Args:
-            processed_texts (List[str]): A list of processed texts.
-
-        Returns:
-            List[Document]: A list of Document objects.
-        """
-        docs = [Document(page_content=text) for text in processed_texts]
-        self.docs = text_splitter.split_documents(docs)
+        processed_texts = [self.preprocessor.preprocess(text) for text in texts]
+        self.docs = self.text_splitter.create_documents(processed_texts)
+        self.docs = self.text_splitter.split_documents(self.docs)
         return self.docs
 
     def create_chroma_db(self, docs: List[Document], embeddings) -> Chroma:
@@ -78,9 +67,8 @@ class LangChainHandler:
         Returns:
             str: The answer to the query based on the input texts.
         """
-        processed_texts = self.process_texts(texts)
-        docs = self.create_documents(processed_texts)
-        self.create_chroma_db(docs, self.embedder)
+        self.process_texts(texts)
+        self.create_chroma_db(self.docs, self.embedder)
         self._build_template()
         result_docs = self.db.similarity_search(query)
         most_relevant_doc = result_docs[0].page_content
@@ -88,3 +76,7 @@ class LangChainHandler:
         doc_based_answer = self.llm(prompt)
 
         return doc_based_answer
+
+if __name__ == '__main__':
+    lc_handler = LangChainHandler()
+    
