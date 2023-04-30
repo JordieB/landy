@@ -5,26 +5,26 @@ from discord import Intents
 from utils.lc_handler import LangChainHandler
 from utils.logger import Logger
 
+
 # Set up logging
 logger = Logger(__name__).get_logger()
-
-# Create a LangChainHandler instance
-lc = LangChainHandler()
 
 # Set up the Discord bot
 intents = Intents.default()
 intents.message_content = True
 bot = commands.Bot(command_prefix='!', intents=intents)
 
-# Set-up data
-df = pd.read_csv('seria/data/input_blogs.csv')
-posts = [row[0] for row in df.values]
 
 @bot.command()
 async def ask(ctx, *, question):
     global posts
     global lc
-
+    
+    # Create a LangChainHandler instance
+    lc = LangChainHandler()
+    # Set-up data
+    df = pd.read_csv('seria/data/input_blogs.csv')
+    posts = [row[0] for row in df.values]
     # Get the answer for the query based on the documents
     answer = lc.ask_doc_based_question(posts, question)
 
