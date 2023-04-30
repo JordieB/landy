@@ -17,7 +17,7 @@ intents.message_content = True
 bot = commands.Bot(command_prefix='!', intents=intents)
 
 # Set-up data
-df = pd.read_csv('data/input_blogs.csv')
+df = pd.read_csv('seria/data/input_blogs.csv')
 posts = [row[0] for row in df.values]
 
 @bot.command()
