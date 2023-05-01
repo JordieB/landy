@@ -3,8 +3,10 @@ import json
 import traceback
 from dotenv import load_dotenv
 
-from discord import Intents, ApplicationContext
+import discord
+from discord import Intents, ApplicationContext, Interaction, Embed
 from discord.ext import commands
+from discord.ui import Modal, View, InputText, button
 
 from utils.lc_handler import LangChainHandler
 from utils.logger import CustomLogger
@@ -16,7 +18,7 @@ load_dotenv()
 # Set-up logger
 logger = CustomLogger(__name__)
 
-# Set up the Discord bot
+# Set up the bot
 intents = Intents.default()
 intents.message_content = True
 bot = commands.Bot(intents=intents)
@@ -31,6 +33,30 @@ with open(data_file, 'r') as f:
 # Grab just the blog posts data in a 2d array
 posts = [post for post in data['blog'].values()]
 
+class ThumbsDownFeedbackModal(Modal):
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+        self.add_item(InputText(label='Feedback? Resource links welcome!', style=discord.InputTextStyle.long))
+
+    async def callback(self, interaction: Interaction):
+        embed = Embed(title="Thank you for your feedback!")
+        embed.add_field(name="We'll take a look at the following...", value=self.children[0].value)
+        await interaction.response.send_message(embeds=[embed])
+
+class FeedbackView(View):
+    # async def on_timeout(self):
+    #     for child in self.children:
+    #         child.disabled = True
+    #         child.style = discord.ButtonStyle.grey
+    #     await self.message.edit(content="We're no longer accepting feedback for this question-answer.", view=self)
+    
+    @button(style=discord.ButtonStyle.green, emoji="👍")
+    async def up_button_callback(self, button, interaction: Interaction):
+        await interaction.response.send_message("Thank you for the feedback!", ephemeral=True)
+        
+    @button(style=discord.ButtonStyle.red, emoji="👎")
+    async def down_button_callback(self, button, interaction: Interaction):
+        await interaction.response.send_modal(ThumbsDownFeedbackModal(title='ThumbsDownFeedbackModal'))
 
 @bot.event
 async def on_ready():
@@ -42,7 +68,7 @@ async def ask(ctx: ApplicationContext, *, question: str):
     global posts
     
     # Show user bot is thinking
-    await ctx.defer(ephemeral=True)
+    await ctx.defer(ephemeral=False)
     
     # Create a LangChainHandler instance
     lc = LangChainHandler()
@@ -51,7 +77,9 @@ async def ask(ctx: ApplicationContext, *, question: str):
     answer = lc.ask_doc_based_question(posts, question)
 
     # Send the answer back to the user
-    await ctx.followup.send(f'Q: {question}\n\nA: {answer}')
+    follow_up_text = f'Q: {question}\n\nA: {answer}\n\nPlease give this answer feedback with the buttons below!'
+    await ctx.send_followup(follow_up_text, ephemeral=False, view=FeedbackView())
+    # await ctx.respond("Was the response helpful?", )
 
 # Ask command error handler
 @ask.error
@@ -85,8 +113,3 @@ async def ask_error(ctx, error):
 # Run bot
 if __name__ == '__main__':
     bot.run(os.environ['DISCORD_API_TOKEN'])
-
-    
-    
-    
-    
