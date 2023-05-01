@@ -12,4 +12,13 @@ jobs:
       - name: git-bash
         uses: pkg-src/github-action-git-bash@v1.1
         with:
-          args: "curl --request POST --url http://app.community.saturnenterprise.io/api/deployments/${{ secrets.DEPLOYMENT_ID }}/stop --header 'accept: application/json' --header 'authorization: Bearer ${{ secrets.DEPLOYMENT_API_KEY }}' && curl --request POST --url http://app.community.saturnenterprise.io/api/deployments/${{ secrets.DEPLOYMENT_ID }}/start --header 'accept: application/json' --header 'authorization: Bearer ${{ secrets.DEPLOYMENT_API_KEY }}'"
+          args: |
+            curl --request POST \
+             --url http://app.community.saturnenterprise.io/api/deployments/${{ secrets.DEPLOYMENT_ID }}/stop \
+             --header 'accept: application/json' \
+             --header 'authorization: Bearer ${{ secrets.DEPLOYMENT_API_KEY }}'
+            curl --request POST \
+               --url http://app.community.saturnenterprise.io/api/deployments/${{ secrets.DEPLOYMENT_ID }}/start \
+               --header 'accept: application/json' \
+               --header 'authorization: Bearer ${{ secrets.DEPLOYMENT_API_KEY }}' \
+               --header 'content-type: application/json'
