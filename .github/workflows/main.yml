@@ -9,6 +9,10 @@ jobs:
   restart-server:
     runs-on: ubuntu-latest
     steps:
+      - name: Set-Up curl
+        uses: jcblw/bash@1.0.0
+        with:
+          args: "apt update && apt full-upgrade && apt install curl"
       - name: Stop Server
         uses: jcblw/bash@1.0.0
         with:
