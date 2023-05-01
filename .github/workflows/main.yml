@@ -15,8 +15,11 @@ jobs:
           SSH_HOST: ${{ secrets.SSH_HOST }}
           SSH_USER: ${{ secrets.SSH_USER }}
           SSH_KEY: ${{ secrets.SSH_KEY }}
-      - name: Restart Server
+      - name: Stop Server
         uses: jdickey/bash@v.1.1.1
         with:
-          args: reboot
-        
+          args: curl --request POST --url http://app.community.saturnenterprise.io/api/deployments/${{ secrets.DEPLOYMENT_ID }}/stop --header 'accept: application/json' --header 'authorization: Bearer {{ secrets.DEPLOYMENT_ID }}'
+      - name: Start Server
+        uses: jdickey/bash@v.1.1.1
+        with:
+          args: curl --request POST --url http://app.community.saturnenterprise.io/api/deployments/${{ secrets.DEPLOYMENT_ID }}/start --header 'accept: application/json' --header 'authorization: Bearer {{ secrets.DEPLOYMENT_ID }}'
