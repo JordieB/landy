@@ -44,12 +44,6 @@ class ThumbsDownFeedbackModal(Modal):
         await interaction.response.send_message(embeds=[embed])
 
 class FeedbackView(View):
-    # async def on_timeout(self):
-    #     for child in self.children:
-    #         child.disabled = True
-    #         child.style = discord.ButtonStyle.grey
-    #     await self.message.edit(content="We're no longer accepting feedback for this question-answer.", view=self)
-    
     @button(style=discord.ButtonStyle.green, emoji="👍")
     async def up_button_callback(self, button, interaction: Interaction):
         await interaction.response.send_message("Thank you for the feedback!", ephemeral=True)
