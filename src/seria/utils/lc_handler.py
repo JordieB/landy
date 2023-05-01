@@ -23,7 +23,8 @@ class LangChainHandler:
         self.llm = OpenAI(temperature=0.9,
                           model_name='text-davinci-003')
         self.template = '===\nContext: {doc}\n===\n\nQ: {question}\nA:'
-        
+    
+    @logger.log_execution_time
     def process_texts(self, texts: List[str]) -> List[str]:
         """
         Process texts using the preprocessor and text_splitter.

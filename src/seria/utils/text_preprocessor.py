@@ -33,7 +33,6 @@ class TextPreprocessor:
             # self.tokens_to_text,
         ]
 
-    @logger.log_execution_time
     def preprocess(self, text):
         """
         Apply the preprocessing steps to the given text.
