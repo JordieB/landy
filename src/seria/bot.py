@@ -9,6 +9,7 @@ from utils.logger import CustomLogger
 
 # Set up custom logging for the discord.py library
 discord_logger = CustomLogger('discord')
+logger = CustomLogger(__name__)
 
 # Set up the Discord bot
 intents = Intents.default()
@@ -28,7 +29,7 @@ async def ask(ctx, *, question):
     # Get the absolute path of the directory containing the script
     script_dir = os.path.dirname(os.path.abspath(__file__))
     # Construct a file path relative to the script's directory
-    data_file = os.path.join(script_dir, '..', 'data', 'input_blogs.csv')
+    data_file = os.path.join(script_dir, 'data', 'input_blogs.csv')
     # Load the data in a pd.DataFrame
     df = pd.read_csv(data_file)
     # Grab just the blog posts data in a 2d array
@@ -53,6 +54,10 @@ async def ask_error(ctx, error):
         ctx: The context of the command.
         error: The error raised during the execution of the 'ask' command.
     """
+    # Logs the error
+    logger.error(error, exc_info=True)
+    
+    # Returns a call to action to user
     if isinstance(error, commands.CommandInvokeError):
         original_error = error.original
         trace = ''.join(traceback.format_exception(
