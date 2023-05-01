@@ -3,9 +3,8 @@ import json
 import traceback
 from dotenv import load_dotenv
 
-from discord import Intents
+from discord import Intents, ApplicationContext
 from discord.ext import commands
-from discord.ext.commands import Context
 
 from utils.lc_handler import LangChainHandler
 from utils.logger import CustomLogger
@@ -32,10 +31,18 @@ with open(data_file, 'r') as f:
 # Grab just the blog posts data in a 2d array
 posts = [post for post in data['blog'].values()]
 
+
+@bot.event
+async def on_ready():
+    logger.info(f"{bot.user} is ready and online!")
+
 # Ask command
-@bot.command(description='Ask GPT3 a DFO-related')
-async def ask(ctx: Context, *, question: str):
+@bot.slash_command(description='Ask Seria a DFO-related question')
+async def ask(ctx: ApplicationContext, *, question: str):
     global posts
+    
+    # Show user bot is thinking
+    await ctx.defer(ephemeral=True)
     
     # Create a LangChainHandler instance
     lc = LangChainHandler()
@@ -44,7 +51,7 @@ async def ask(ctx: Context, *, question: str):
     answer = lc.ask_doc_based_question(posts, question)
 
     # Send the answer back to the user
-    await ctx.send(answer)
+    await ctx.followup.send(f'Q: {question}\n\nA: {answer}')
 
 # Ask command error handler
 @ask.error
