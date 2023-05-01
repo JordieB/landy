@@ -6,3 +6,4 @@ langchain
 beautifulsoup4
 nltk
 nose
+py-cord
