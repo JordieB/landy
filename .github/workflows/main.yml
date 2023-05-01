@@ -10,11 +10,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Restart Server
-        uses: appleboy/ssh-action@master
+        uses: invi5H/ssh-action@v1.0.0
         with:
-          host: ssh.community.saturnenterprise.io
-          username: pd-ssh-jbell-seria-5134de54163c48718a719691c2aa7244
-          password: ${{ secrets.SSH_PASS }}
-          port: 22
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+          SSH_USER: ${{ secrets.SSH_USER }}
+          SSH_: ${{ secrets.SSH_PASS }}
+          
           script: |
             reboot
