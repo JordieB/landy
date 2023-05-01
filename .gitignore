@@ -1,3 +1,6 @@
+# Ignore README draft
+README_draft.txt
+
 # Ignore Chroma stores for now
 .chroma
 db
