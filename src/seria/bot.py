@@ -23,9 +23,17 @@ async def ask(ctx, *, question):
     
     # Create a LangChainHandler instance
     lc = LangChainHandler()
+    
     # Set-up data
-    df = pd.read_csv('seria/data/input_blogs.csv')
+    # Get the absolute path of the directory containing the script
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    # Construct a file path relative to the script's directory
+    data_file = os.path.join(script_dir, '..', 'data', 'input_blogs.csv')
+    # Load the data in a pd.DataFrame
+    df = pd.read_csv(data_file)
+    # Grab just the blog posts data in a 2d array
     posts = [row[0] for row in df.values]
+    
     # Get the answer for the query based on the documents
     answer = lc.ask_doc_based_question(posts, question)
 
