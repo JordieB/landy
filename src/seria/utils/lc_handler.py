@@ -1,4 +1,5 @@
 import os
+import logging
 from typing import List
 from langchain.llms import OpenAI
 from langchain.docstore.document import Document
