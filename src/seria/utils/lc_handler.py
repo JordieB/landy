@@ -7,6 +7,9 @@ from langchain.text_splitter import TokenTextSplitter
 from langchain.vectorstores import Chroma
 from langchain import PromptTemplate
 from .text_preprocessor import TextPreprocessor
+from .logger import CustomLogger
+
+logger = CustomLogger('LangChainHandler')
 
 class LangChainHandler:
     """
@@ -33,6 +36,7 @@ class LangChainHandler:
         processed_texts = [self.preprocessor.preprocess(text) for text in texts]
         self.docs = self.text_splitter.create_documents(processed_texts)
         self.docs = self.text_splitter.split_documents(self.docs)
+        logger.debug('Texts finished processing')
         return self.docs
 
     def create_chroma_db(self, docs: List[str], persist_directory: str = 'db') -> Chroma:
@@ -50,8 +54,10 @@ class LangChainHandler:
         # logger.log('Attempt to load an existing DB...')
         # If index already exists:
         if os.path.isdir(persist_directory + '/index'):
+            logger.debug('Chroma DB found...')
             self.db = Chroma(persist_directory=persist_directory,
                              embedding_function=self.embedder)
+            logger.debug('Using pre-existing Chroma DB')
         # Else, make one from documents
         else:
             self.db = Chroma.from_documents(documents=docs,
@@ -68,6 +74,7 @@ class LangChainHandler:
         self.template = PromptTemplate(template=self.template,
                                        input_variables=['question', 'doc'])
 
+    @logger.log_execution_time
     def ask_doc_based_question(self, texts: List[str], query: str) -> str:
         """
         Ask a question based on a list of input texts and a query.
@@ -79,13 +86,17 @@ class LangChainHandler:
         Returns:
             str: The answer to the query based on the input texts.
         """
+        logger.info('Starting to answer a question from a user...')
         self.process_texts(texts)
         self.create_chroma_db(self.docs, self.embedder)
         self._build_template()
         result_docs = self.db.similarity_search(query)
+        logger.debug('Found most relevant document from vecstore')
         most_relevant_doc = result_docs[0].page_content
         prompt = self.template.format(question=query, doc=most_relevant_doc)
+        logger.debug('Asking LLM for doc-based answer...')
         doc_based_answer = self.llm(prompt)
+        logger.debug('LLM has answered the user\'s question')
 
         return doc_based_answer
 

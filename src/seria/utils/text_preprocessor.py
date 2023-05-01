@@ -9,6 +9,10 @@ from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
 from nltk.stem import WordNetLemmatizer
 
+from .logger import CustomLogger
+
+
+logger = CustomLogger('TextPreprocessor')
 
 class TextPreprocessor:
     """
@@ -29,6 +33,7 @@ class TextPreprocessor:
             # self.tokens_to_text,
         ]
 
+    @logger.log_execution_time
     def preprocess(self, text):
         """
         Apply the preprocessing steps to the given text.

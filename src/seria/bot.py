@@ -3,11 +3,11 @@ import pandas as pd
 from discord.ext import commands
 from discord import Intents
 from utils.lc_handler import LangChainHandler
-from utils.logger import DiscordLogger
+from utils.logger import CustomLogger
 
 
 # Set up custom logging for the discord.py library
-discord_logger = DiscordLogger()
+discord_logger = CustomLogger('discord')
 
 # Set up the Discord bot
 intents = Intents.default()
