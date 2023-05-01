@@ -11,6 +11,8 @@ from .logger import CustomLogger
 
 
 logger = CustomLogger('LangChainHandler')
+ddb_logger = logging.getLogger('duckdb')
+ddb_logger.setLevel(logging.ERROR)
 
 class LangChainHandler:
     """
@@ -42,8 +44,7 @@ class LangChainHandler:
         return self.docs
 
     def create_chroma_db(self, docs: List[str], persist_directory: str = 'db') -> Chroma:
-        """
-        Create a Chroma database if it does not already exist, or load an existing one.
+        """        Create a Chroma database if it does not already exist, or load an existing one.
         
         Args:
             docs (List[str]): A list of documents.
