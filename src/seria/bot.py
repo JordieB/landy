@@ -1,4 +1,5 @@
 import os
+import traceback
 import pandas as pd
 from discord.ext import commands
 from discord import Intents
@@ -30,6 +31,30 @@ async def ask(ctx, *, question):
 
     # Send the answer back to the user
     await ctx.send(answer)
+
+@ask.error
+async def ask_error(ctx, error):
+    """
+    Error handler for the 'ask' command.
+
+    If an exception occurs during the execution of the 'ask' command,
+    this function sends a message to the user with a link to create a new
+    issue on GitHub and includes the traceback of the error.
+
+    Args:
+        ctx: The context of the command.
+        error: The error raised during the execution of the 'ask' command.
+    """
+    if isinstance(error, commands.CommandInvokeError):
+        original_error = error.original
+        trace = ''.join(traceback.format_exception(
+            type(original_error), original_error, original_error.__traceback__))
+        error_message = (
+            f"An error occurred while processing your request. "
+            f"Please create a new issue at https://github.com/JordieB/seria/issues/new with the following details:\n\n"
+            f"```python\n{trace}\n```"
+        )
+        await ctx.send(error_message)
 
 
 if __name__ == '__main__':

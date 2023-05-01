@@ -9,6 +9,7 @@ from langchain import PromptTemplate
 from .text_preprocessor import TextPreprocessor
 from .logger import CustomLogger
 
+
 logger = CustomLogger('LangChainHandler')
 
 class LangChainHandler:
@@ -88,7 +89,7 @@ class LangChainHandler:
         """
         logger.info('Starting to answer a question from a user...')
         self.process_texts(texts)
-        self.create_chroma_db(self.docs, self.embedder)
+        self.create_chroma_db(self.docs)
         self._build_template()
         result_docs = self.db.similarity_search(query)
         logger.debug('Found most relevant document from vecstore')
