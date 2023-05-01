@@ -1,4 +1,4 @@
-# Sera,The DFO Discord Bot
+# Seria, A DFO Discord Bot
 
 This is a Discord bot that uses LangChain and vector stores to answer questions about the popular video game Dungeon Fighter Online.
 
