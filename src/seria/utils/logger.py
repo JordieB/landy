@@ -91,7 +91,7 @@ class CustomLogger:
         self.logger.critical(msg)
 
         
-if __name__ == '__main__'':
+if __name__ == '__main__':
     logger = CustomLogger('seria_bot')
     logger.info("This is an info message.")
     logger.warning("This is a warning message.")
