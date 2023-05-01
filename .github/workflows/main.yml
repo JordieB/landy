@@ -16,7 +16,7 @@ jobs:
             curl --request POST \
              --url http://app.community.saturnenterprise.io/api/deployments/${{ secrets.DEPLOYMENT_ID }}/stop \
              --header 'accept: application/json' \
-             --header 'authorization: Bearer ${{ secrets.DEPLOYMENT_API_KEY }}'
+             --header 'authorization: Bearer ${{ secrets.DEPLOYMENT_API_KEY }}' && \
             curl --request POST \
                --url http://app.community.saturnenterprise.io/api/deployments/${{ secrets.DEPLOYMENT_ID }}/start \
                --header 'accept: application/json' \
