@@ -10,22 +10,22 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Apt Update
-        uses: jdickey/bash@v.1.1.1
+        uses: pkg-src/github-action-git-bash@v1.1
         with:
-          args: "apt update"
+            args: "apt full-upgrade"
       - name: Apt Full-Upgrade
-        uses: jdickey/bash@v.1.1.1
+        uses: pkg-src/github-action-git-bash@v1.1
         with:
           args: "apt full-upgrade"
       - name: Install Curl
-        uses: jdickey/bash@v.1.1.1
+        uses: pkg-src/github-action-git-bash@v1.1
         with:
           args: "apt install curl"
       - name: Stop Server
-        uses: jdickey/bash@v.1.1.1
+        uses: pkg-src/github-action-git-bash@v1.1
         with:
           args: "curl --request POST --url http://app.community.saturnenterprise.io/api/deployments/${{ secrets.DEPLOYMENT_ID }}/stop --header 'accept: application/json' --header 'authorization: Bearer {{ secrets.DEPLOYMENT_API_KEY }}'"
       - name: Start Server
-        uses: jdickey/bash@v.1.1.1
+        uses: pkg-src/github-action-git-bash@v1.1
         with:
           args: "curl --request POST --url http://app.community.saturnenterprise.io/api/deployments/${{ secrets.DEPLOYMENT_ID }}/start --header 'accept: application/json' --header 'authorization: Bearer {{ secrets.DEPLOYMENT_API_KEY }}'"
