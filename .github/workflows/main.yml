@@ -14,7 +14,7 @@ jobs:
         with:
           host: ssh.community.saturnenterprise.io
           username: pd-ssh-jbell-seria-5134de54163c48718a719691c2aa7244
-          key: ${{ secrets.SSH_PASS }}
+          password: ${{ secrets.SSH_PASS }}
           port: 22
           script: |
             reboot
