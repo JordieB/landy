@@ -9,7 +9,7 @@ jobs:
   restart-server:
     runs-on: ubuntu-latest
     steps:
-      - name: git-bash
+      - name: Restart Server
         uses: pkg-src/github-action-git-bash@v1.1
         with:
           args: |
