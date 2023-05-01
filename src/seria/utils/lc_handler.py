@@ -18,7 +18,7 @@ class LangChainHandler:
     """
     def __init__(self):
         self.preprocessor = TextPreprocessor()
-        self.text_splitter = TokenTextSplitter()
+        self.text_splitter = TokenTextSplitter(chunk_size=3000)  # default chunk_size = 4k
         self.embedder = OpenAIEmbeddings()
         self.llm = OpenAI(temperature=0.9,
                           model_name='text-davinci-003')
