@@ -1,5 +1,5 @@
 discord.py
-discord
+py-cord
 tiktoken
 openai
 chromadb

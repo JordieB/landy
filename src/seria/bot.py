@@ -1,23 +1,27 @@
 import os
 import json
 import traceback
-import pandas as pd
-from discord.ext import commands
+from dotenv import load_dotenv
+
 from discord import Intents
+from discord.ext import commands
+from discord.ext.commands import Context
+
 from utils.lc_handler import LangChainHandler
 from utils.logger import CustomLogger
 
 
-# Set up custom logging for the discord.py library
-discord_logger = CustomLogger('discord')
+# Load environment variables from .env file
+load_dotenv()
+
+# Set-up logger
 logger = CustomLogger(__name__)
 
 # Set up the Discord bot
 intents = Intents.default()
 intents.message_content = True
-bot = commands.Bot(command_prefix='!', intents=intents)
+bot = commands.Bot(intents=intents)
 
-# Set-up data
 # Get the absolute path of the directory containing the script
 script_dir = os.path.dirname(os.path.abspath(__file__))
 # Construct a file path relative to the script's directory
@@ -26,12 +30,12 @@ data_file = os.path.join(script_dir, '..', '..', 'data', 'input_blogs.json')
 with open(data_file, 'r') as f:
     data = json.load(f)
 # Grab just the blog posts data in a 2d array
-posts = [row[0] for row in data]
+posts = [post for post in data['blog'].values()]
 
-@bot.command()
-async def ask(ctx, *, question):
+# Ask command
+@bot.command(description='Ask GPT3 a DFO-related')
+async def ask(ctx: Context, *, question: str):
     global posts
-    global lc
     
     # Create a LangChainHandler instance
     lc = LangChainHandler()
@@ -42,6 +46,7 @@ async def ask(ctx, *, question):
     # Send the answer back to the user
     await ctx.send(answer)
 
+# Ask command error handler
 @ask.error
 async def ask_error(ctx, error):
     """
@@ -70,7 +75,11 @@ async def ask_error(ctx, error):
         )
         await ctx.send(error_message)
 
-
+# Run bot
 if __name__ == '__main__':
-    bot.run(os.environ['DISCORD_API_TOKEN'],
-            log_handler=discord_logger.handler)
+    bot.run(os.environ['DISCORD_API_TOKEN'])
+
+    
+    
+    
+    
