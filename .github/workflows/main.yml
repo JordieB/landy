@@ -9,12 +9,9 @@ jobs:
   restart-server:
     runs-on: ubuntu-latest
     steps:
-      - name: SSH then Restart
-        uses: cross-the-world/ssh-scp-ssh-pipelines@latest
+      - name: Restart Server
+      uses: pkg-src/github-action-git-bash@v1.1
         with:
-          host: ${{ secrets.SSH_HOST }}
-          user: ${{ secrets.SSH_USER }}
-          pass: ${{ secrets.SSH_KEY }}
-          last_ssh: |
+          args:
             curl --request POST --url http://app.community.saturnenterprise.io/api/deployments/${{ secrets.DEPLOYMENT_ID }}/stop --header 'accept: application/json' --header 'authorization: Bearer {{ secrets.DEPLOYMENT_API_KEY }}'
             curl --request POST --url http://app.community.saturnenterprise.io/api/deployments/${{ secrets.DEPLOYMENT_ID }}/start --header 'accept: application/json' --header 'authorization: Bearer {{ secrets.DEPLOYMENT_API_KEY }}'
