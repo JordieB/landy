@@ -10,10 +10,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Stop Server
-        uses: jdickey/bash@v.1.1.1
+        uses: jcblw/bash@1.0.0
         with:
           args: "curl --request POST --url http://app.community.saturnenterprise.io/api/deployments/${{ secrets.DEPLOYMENT_ID }}/stop --header 'accept: application/json' --header 'authorization: Bearer {{ secrets.DEPLOYMENT_API_KEY }}'"
       - name: Start Server
-        uses: jdickey/bash@v.1.1.1
+        uses: jcblw/bash@1.0.0
         with:
           args: "curl --request POST --url http://app.community.saturnenterprise.io/api/deployments/${{ secrets.DEPLOYMENT_ID }}/start --header 'accept: application/json' --header 'authorization: Bearer {{ secrets.DEPLOYMENT_API_KEY }}'"
