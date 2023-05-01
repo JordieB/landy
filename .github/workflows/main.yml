@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Restart Server
-      uses: pkg-src/github-action-git-bash@v1.1
+        uses: pkg-src/github-action-git-bash@v1.1
         with:
           args:
             curl --request POST --url http://app.community.saturnenterprise.io/api/deployments/${{ secrets.DEPLOYMENT_ID }}/stop --header 'accept: application/json' --header 'authorization: Bearer {{ secrets.DEPLOYMENT_API_KEY }}'
