@@ -1,4 +1,5 @@
 import os
+import json
 import traceback
 import pandas as pd
 from discord.ext import commands
@@ -16,6 +17,16 @@ intents = Intents.default()
 intents.message_content = True
 bot = commands.Bot(command_prefix='!', intents=intents)
 
+# Set-up data
+# Get the absolute path of the directory containing the script
+script_dir = os.path.dirname(os.path.abspath(__file__))
+# Construct a file path relative to the script's directory
+data_file = os.path.join(script_dir, '..', '..', 'data', 'input_blogs.json')
+# Load the data from a json file
+with open(data_file, 'r') as f:
+    data = json.load(f)
+# Grab just the blog posts data in a 2d array
+posts = [row[0] for row in data]
 
 @bot.command()
 async def ask(ctx, *, question):
@@ -24,17 +35,6 @@ async def ask(ctx, *, question):
     
     # Create a LangChainHandler instance
     lc = LangChainHandler()
-    
-    # Set-up data
-    # Get the absolute path of the directory containing the script
-    script_dir = os.path.dirname(os.path.abspath(__file__))
-    # Construct a file path relative to the script's directory
-    data_file = os.path.join(script_dir, '..', '..', 'data', 'input_blogs.json')
-    # Load the data from a json file
-    with open(data_file, 'r') as f:
-        data = json.load(f)
-    # Grab just the blog posts data in a 2d array
-    posts = [row[0] for row in data]
     
     # Get the answer for the query based on the documents
     answer = lc.ask_doc_based_question(posts, question)
