@@ -31,6 +31,7 @@ with open(data_file, 'r') as f:
 # Grab just the blog posts data in a 2d array
 posts = [post for post in data['blog'].values()]
 
+# Set-up feedback modal for downvotes
 class ThumbsDownFeedbackModal(Modal):
     """
     A modal that is used to gather feedback from users who have marked the answer as "thumbs down."
@@ -53,6 +54,7 @@ class ThumbsDownFeedbackModal(Modal):
         embed.add_field(name="We'll take a look at the following...", value=self.children[0].value)
         await interaction.response.send_message(embeds=[embed])
 
+# Set-up button view for upvoting and downvoting
 class FeedbackView(View):
     """
     A view that is shown to the user after a query has been answered.
@@ -86,6 +88,7 @@ class FeedbackView(View):
         """
         await interaction.response.send_modal(ThumbsDownFeedbackModal(title='ThumbsDownFeedbackModal'))
 
+# Log when a bot is ready
 @bot.event
 async def on_ready():
     """
