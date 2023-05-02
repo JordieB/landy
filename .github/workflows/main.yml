@@ -13,9 +13,9 @@ jobs:
         uses: pkg-src/github-action-git-bash@v1.1
         with:
           args: |
-            curl --request POST --url https://app.community.saturnenterprise.io/api/deployments/${{ secrets.DEPLOYMENT_ID }}/stop --header 'accept: application/json' --header 'authorization: token ${{ secrets.DEPLOYMENTA_API_KEY }}'
+            curl --request POST --url https://app.community.saturnenterprise.io/api/deployments/${{ secrets.DEPLOYMENT_ID }}/stop --header 'accept:application/json' --header 'authorization:token ${{ secrets.DEPLOYMENT_API_KEY }}'
       - name: Start Server
         uses: pkg-src/github-action-git-bash@v1.1
         with:
           args: |
-            curl --request POST --url https://app.community.saturnenterprise.io/api/deployments/${{ secrets.DEPLOYMENT_ID }}/start --header 'accept: application/json' --header 'authorization: token ${{ secrets.DEPLOYMENTA_API_KEY }}'
+            curl --request POST --url https://app.community.saturnenterprise.io/api/deployments/${{ secrets.DEPLOYMENT_ID }}/start --header 'accept:application/json' --header 'authorization:token ${{ secrets.DEPLOYMENT_API_KEY }}'
