@@ -9,15 +9,15 @@ jobs:
   restart-server:
     runs-on: ubuntu-latest
     steps:
-      - shell: bash
-        name: Stop Server
+      - name: Stop Server
+        shell: bash
         env:
           DEPLOYMENT_ID: ${{ secrets.DEPLOYMENT_ID }}
           DEPLOYMENT_API_KEY: ${{ secrets.DEPLOYMENT_API_KEY }}
         run: |
           curl -H 'Accept:application/json' -H 'Authorization:token $DEPLOYMENT_API_KEY' "https://app.community.saturnenterprise.io/api/deployments/$DEPLOYMENT_ID/stop"
-      - shell: bash
-        name: Stop Server
+      - name: Stop Server
+        shell: bash
         env:
           DEPLOYMENT_ID: ${{ secrets.DEPLOYMENT_ID }}
           DEPLOYMENT_API_KEY: ${{ secrets.DEPLOYMENT_API_KEY }}
