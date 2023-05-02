@@ -13,13 +13,13 @@ jobs:
         shell: bash
         env:
           ID: ${{ secrets.DEPLOYMENT_ID }}
-          TOKEN: ${{ secrets.DEPLOYMENT_API_KEY }}
+          TOKEN: ${{ secrets.USER_TOKEN }}
         run: |
           curl -H 'Accept:application/json' -H 'Authorization:Bearer $TOKEN' -X POST "https://app.community.saturnenterprise.io/api/deployments/$ID/stop"
       - name: Start Server
         shell: bash
         env:
           ID: ${{ secrets.DEPLOYMENT_ID }}
-          TOKEN: ${{ secrets.DEPLOYMENT_API_KEY }}
+          TOKEN: ${{ secrets.USER_TOKEN }}
         run: |
           curl -H 'Accept:application/json' -H 'Authorization:Bearer $TOKEN' -X POST "https://app.community.saturnenterprise.io/api/deployments/$ID/start"
