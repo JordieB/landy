@@ -10,12 +10,16 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Stop Server
-        uses: pkg-src/github-action-git-bash@v1.1
-        with:
-          args: |
-            curl --request POST --url https://app.community.saturnenterprise.io/api/deployments/${{ secrets.DEPLOYMENT_ID }}/stop --header 'accept: application/json' --header 'authorization: token ${{ secrets.DEPLOYMENTA_API_KEY }}'
+        shell: bash
+        env:
+          ID: ${{ secrets.DEPLOYMENT_ID }}
+          TOKEN: ${{ secrets.USER_TOKEN }}
+        run: |
+          curl -H 'Accept:application/json' -H 'Authorization:Bearer $TOKEN' -X POST "https://app.community.saturnenterprise.io/api/deployments/$ID/stop"
       - name: Start Server
-        uses: pkg-src/github-action-git-bash@v1.1
-        with:
-          args: |
-            curl --request POST --url https://app.community.saturnenterprise.io/api/deployments/${{ secrets.DEPLOYMENT_ID }}/start --header 'accept: application/json' --header 'authorization: token ${{ secrets.DEPLOYMENTA_API_KEY }}'
+        shell: bash
+        env:
+          ID: ${{ secrets.DEPLOYMENT_ID }}
+          TOKEN: ${{ secrets.USER_TOKEN }}
+        run: |
+          curl -H 'Accept:application/json' -H 'Authorization:Bearer $TOKEN' -X POST "https://app.community.saturnenterprise.io/api/deployments/$ID/start"
