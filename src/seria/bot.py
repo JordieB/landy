@@ -124,7 +124,7 @@ async def ask(ctx: ApplicationContext, *, question: str):
 
     # Send the answer back to the user
     follow_up_text = f'Q: {question}\n\nA: {answer}\n\nPlease give this answer feedback with the buttons below!'
-    await ctx.send_followup(follow_up_text, ephemeral=False,
+    await ctx.send_followup(follow_up_text, ephemeral=False)
 
 # Ask command error handler
 @ask.error
