@@ -9,8 +9,8 @@ jobs:
   restart-server:
     runs-on: ubuntu-latest
     steps:
-      - shell: bash
       - name: Stop Server
+        shell: bash
         env:
           ID: ${{ secrets.DEPLOYMENT_ID }}
           TOKEN: ${{ secrets.DEPLOYMENT_API_KEY }}
