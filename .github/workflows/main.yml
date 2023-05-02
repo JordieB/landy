@@ -9,6 +9,12 @@ jobs:
   restart-server:
     runs-on: ubuntu-latest
     steps:
+      - name: Preview token
+        shell: bash
+        env:
+          TOKEN: ${{ secrets.DEPLOYMENT_API_KEY }}
+        run: |
+          cat $TOKEN
       - name: Stop Server
         shell: bash
         env:
