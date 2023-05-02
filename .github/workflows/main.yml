@@ -9,23 +9,17 @@ jobs:
   restart-server:
     runs-on: ubuntu-latest
     steps:
-      - name: Preview token
-        shell: bash
-        env:
-          TOKEN: ${{ secrets.DEPLOYMENT_API_KEY }}
-        run: |
-          echo $TOKEN
       - name: Stop Server
         shell: bash
         env:
           ID: ${{ secrets.DEPLOYMENT_ID }}
           TOKEN: ${{ secrets.DEPLOYMENT_API_KEY }}
         run: |
-          curl -H 'Accept:application/json' -H 'Authorization:token $TOKEN' -X POST "https://app.community.saturnenterprise.io/api/deployments/$ID/stop"
+          curl -H 'Accept:application/json' -H 'authorization:token $TOKEN' -X POST "https://app.community.saturnenterprise.io/api/deployments/$ID/stop"
       - name: Start Server
         shell: bash
         env:
-          ID: "${{ secrets.DEPLOYMENT_ID }}"
-          TOKEN: "${{ secrets.DEPLOYMENT_API_KEY }}"
+          ID: ${{ secrets.DEPLOYMENT_ID }}
+          TOKEN: ${{ secrets.DEPLOYMENT_API_KEY }}
         run: |
-          curl -H 'Accept:application/json' -H 'Authorization:token $TOKEN' -X POST "https://app.community.saturnenterprise.io/api/deployments/$ID/start"
+          curl -H 'Accept:application/json' -H 'authorization:token $TOKEN' -X POST "https://app.community.saturnenterprise.io/api/deployments/$ID/start"
