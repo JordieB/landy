@@ -10,12 +10,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Stop Server
+        env:
+          DEPLOYMENT_ID: ${{ secrets.DEPLOYMENT_ID }}
+          DEPLOYMENT_API_KEY: ${{ secrets.DEPLOYMENT_API_KEY }}
         uses: pkg-src/github-action-git-bash@v1.1
         with:
           args: |
-            curl -H 'Accept:application/json' -H 'Authorization:token ${{ secrets.DEPLOYMENT_API_KEY }}' "https://app.community.saturnenterprise.io/api/deployments/${{ secrets.DEPLOYMENT_ID }}/stop"
+            curl -H 'Accept:application/json' -H 'Authorization:token ${DEPLOYMENT_API_KEY}' "https://app.community.saturnenterprise.io/api/deployments/${DEPLOYMENT_ID}/stop"
       - name: Start Server
         uses: pkg-src/github-action-git-bash@v1.1
         with:
           args: |
-            curl -H 'Accept:application/json' -H 'Authorization:token ${{ secrets.DEPLOYMENT_API_KEY }}' -X POST "https://app.community.saturnenterprise.io/api/deployments/${{ secrets.DEPLOYMENT_ID }}/start"
+            curl -H 'Accept:application/json' -H 'Authorization:token ${DEPLOYMENT_API_KEY}' "https://app.community.saturnenterprise.io/api/deployments/${DEPLOYMENT_ID}/start"
