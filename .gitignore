@@ -1,3 +1,6 @@
+# Ignore notebooks
+*.ipynb
+
 # Ignore act
 bin
 
