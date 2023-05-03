@@ -16,7 +16,8 @@ logger = CustomLogger('TextPreprocessor')
 
 class TextPreprocessor:
     """
-    Class for preprocessing text using a sequence of defined text processing steps.
+    Class for preprocessing text using a sequence of defined text processing
+    steps.
     """
     def __init__(self):
         # Define preprocessing steps

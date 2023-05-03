@@ -21,11 +21,16 @@ class LangChainHandler:
     """
     def __init__(self):
         self.preprocessor = TextPreprocessor()
-        self.text_splitter = TokenTextSplitter(chunk_size=3000)  # default chunk_size = 4k
+        # default chunk_size = 4k
+        self.text_splitter = TokenTextSplitter(chunk_size=3000)  
         self.embedder = OpenAIEmbeddings()
         self.llm = OpenAI(temperature=0.9,
                           model_name='text-davinci-003')
-        self.template = '===\nContext: {doc}\n===\n\nQ: {question}\nA:'
+        self.template = ('===\nContext: {doc}\n===\n\nSYSTEM: This question '
+                         'will be about the game Dungeon Fighter Online, also '
+                         'known as DFO or DFOG or Dungeon Fighter Online Global'
+                         '. Please use this information and the context above '
+                         'to answer the following question.\n\nQ: {question}')
     
     @logger.log_execution_time
     def process_texts(self, texts: List[str]) -> List[str]:
@@ -44,14 +49,18 @@ class LangChainHandler:
         logger.debug('Texts finished processing')
         return self.docs
 
-    def create_chroma_db(self, docs: List[str], persist_directory: str = 'db') -> Chroma:
-        """        Create a Chroma database if it does not already exist, or load an existing one.
+    def create_chroma_db(self,
+                         docs: List[str],
+                         persist_directory: str = 'db') -> Chroma:
+        """
+        Create a Chroma database if it does not already exist, or load an
+        existing one.
         
         Args:
             docs (List[str]): A list of documents.
-            persist_directory (str, optional): The directory to store the database on disk.
-                                              Defaults to 'db'.
-
+            persist_directory (str, optional): The directory to store the
+                                               database on disk. Defaults to
+                                               'db'.
         Returns:
             Chroma: A Chroma database.
         """

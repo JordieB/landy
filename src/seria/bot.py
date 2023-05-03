@@ -34,24 +34,28 @@ posts = [post for post in data['blog'].values()]
 # Set-up feedback modal for downvotes
 class ThumbsDownFeedbackModal(Modal):
     """
-    A modal that is used to gather feedback from users who have marked the answer as "thumbs down."
+    A modal that is used to gather feedback from users who have marked the
+    answer as "thumbs down."
     """
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
-        self.add_item(InputText(label='Feedback? Resource links welcome!', style=discord.InputTextStyle.long))
+        self.add_item(InputText(label='Feedback? Resource links welcome!',
+                                style=discord.InputTextStyle.long))
 
     async def callback(self, interaction: Interaction):
         """
         The callback function for the ThumbsDownFeedbackModal.
 
-        When a user submits feedback, this function sends a message to the user to let them know
-        their feedback has been received.
+        When a user submits feedback, this function sends a message to the user
+        to let them knowc their feedback has been received.
 
         Args:
-            interaction (Interaction): The user interaction that triggered the modal.
+            interaction (Interaction): The user interaction that triggered the
+                                       modal.
         """
         embed = Embed(title="Thank you for your feedback!")
-        embed.add_field(name="We'll take a look at the following...", value=self.children[0].value)
+        embed.add_field(name="We'll take a look at the following...",
+                        value=self.children[0].value)
         await interaction.response.send_message(embeds=[embed])
 
 # Set-up button view for upvoting and downvoting
@@ -62,31 +66,40 @@ class FeedbackView(View):
     This view allows the user to provide feedback on the answer they received.
     """
     @button(style=discord.ButtonStyle.green, emoji="👍")
-    async def up_button_callback(self, button: button, interaction: Interaction):
+    async def up_button_callback(self,
+                                 button: button,
+                                 interaction: Interaction):
         """
         The callback function for the "thumbs up" button.
 
-        When a user clicks the "thumbs up" button, this function sends a message to the user to let them
-        know their feedback has been received.
+        When a user clicks the "thumbs up" button, this function sends a
+        message to the user to let them know their feedback has been received.
 
         Args:
             button: The button object.
-            interaction (Interaction): The user interaction that triggered the view.
+            interaction (Interaction): The user interaction that triggered the
+                                       view.
         """
-        await interaction.response.send_message("Thank you for the feedback!", ephemeral=True)
+        await interaction.response.send_message("Thank you for the feedback!",
+                                                ephemeral=True)
         
     @button(style=discord.ButtonStyle.red, emoji="👎")
-    async def down_button_callback(self, button: button, interaction: Interaction):
+    async def down_button_callback(self,
+                                   button: button,
+                                   interaction: Interaction):
         """
         The callback function for the "thumbs down" button.
 
-        When a user clicks the "thumbs down" button, this function displays the ThumbsDownFeedbackModal.
+        When a user clicks the "thumbs down" button, this function displays the
+        ThumbsDownFeedbackModal.
 
         Args:
             button: The button object.
-            interaction (Interaction): The user interaction that triggered the view.
+            interaction (Interaction): The user interaction that triggered the
+                                       view.
         """
-        await interaction.response.send_modal(ThumbsDownFeedbackModal(title='ThumbsDownFeedbackModal'))
+        await interaction.response.send_modal(
+            ThumbsDownFeedbackModal(title='ThumbsDownFeedbackModal'))
 
 # Log when a bot is ready
 @bot.event
@@ -104,8 +117,9 @@ async def ask(ctx: ApplicationContext, *, question: str):
     """
     The function that handles the "ask" command.
 
-    When a user enters a query, this function processes the query and returns an answer. It also shows the user a
-    FeedbackView, which allows them to provide feedback on the answer they received.
+    When a user enters a query, this function processes the query and returns an
+    answer. It also shows the user a FeedbackView, which allows them to provide
+    feedback on the answer they received.
 
     Args:
         ctx (ApplicationContext): The context of the command.
@@ -123,8 +137,11 @@ async def ask(ctx: ApplicationContext, *, question: str):
     answer = lc.ask_doc_based_question(posts, question)
 
     # Send the answer back to the user
-    follow_up_text = f'Q: {question}\n\nA: {answer}\n\nPlease give this answer feedback with the buttons below!'
-    await ctx.send_followup(follow_up_text, ephemeral=False, view=FeedbackView(timeout=None))
+    follow_up_text = (f'Q: {question}\n\nA: {answer}\n\nPlease give this answer'
+                      f' feedback with the buttons below!')
+    await ctx.send_followup(follow_up_text,
+                            ephemeral=False,
+                            view=FeedbackView(timeout=None))
 
 # Ask command error handler
 @ask.error
@@ -150,8 +167,8 @@ async def ask_error(ctx, error):
             type(original_error), original_error, original_error.__traceback__))
         error_message = (
             f"An error occurred while processing your request. "
-            f"Please create a new issue at https://github.com/JordieB/seria/issues/new with the following details:\n\n"
-            f"```python\n{trace}\n```"
+            f"Please create a new issue at https://github.com/JordieB/seria/iss"
+            f"ues/new with the following details:\n\n```python\n{trace}\n```"
         )
         await ctx.send(error_message)
 

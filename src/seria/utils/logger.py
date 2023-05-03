@@ -6,7 +6,8 @@ import time
 
 class CustomLogger:
     """
-    CustomLogger is a class for setting up a custom logger with the specified name and level.
+    CustomLogger is a class for setting up a custom logger with the specified
+    name and level.
 
     Usage:
         logger = CustomLogger("my_custom_logger")
@@ -20,7 +21,8 @@ class CustomLogger:
         Initialize a CustomLogger instance.
 
         :param name: The name of the logger. Defaults to "my_custom_logger".
-        :param level: The minimum log level to display. Defaults to logging.INFO.
+        :param level: The minimum log level to display. Defaults to
+                      logging.INFO.
         """
         self.name = name
         self.level = level
@@ -52,7 +54,7 @@ class CustomLogger:
             start_time = time.time()
             result = func(*args, **kwargs)
             elapsed_time = time.time() - start_time
-            self.info(f"{func.__name__} executed in {elapsed_time:.2f} seconds.")
+            self.info(f"{func.__name__} executed in {elapsed_time:.2f} secs.")
             return result
 
         return wrapper
