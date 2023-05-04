@@ -12,7 +12,7 @@ from nltk.stem import WordNetLemmatizer
 from .logger import CustomLogger
 
 
-logger = CustomLogger('TextPreprocessor')
+logger = CustomLogger(__name__)
 
 class TextPreprocessor:
     """

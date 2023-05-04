@@ -11,13 +11,7 @@ from .text_preprocessor import TextPreprocessor
 from .logger import CustomLogger
 
 
-logger = CustomLogger('LangChainHandler')
-langchain_logger = logging.getLogger('langchain')
-chromadb_logger = logging.getLogger('chromadb')
-ddb_logger = logging.getLogger('duckdb')
-langchain_logger.setLevel(logging.ERROR)
-chromadb_logger.setLevel(logging.ERROR)
-ddb_logger.setLevel(logging.ERROR)
+logger = CustomLogger(__name__)
 
 class LangChainHandler:
     """
