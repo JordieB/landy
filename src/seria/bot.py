@@ -1,6 +1,5 @@
 import os
 import json
-import traceback
 from dotenv import load_dotenv
 import discord
 from discord import Intents, ApplicationContext, Interaction, Embed
@@ -8,6 +7,7 @@ from discord.ext import commands
 from discord.ui import Modal, View, InputText, button
 from utils.lc_handler import LangChainHandler
 from utils.logger import CustomLogger
+from datetime.datetime import now
 
 
 # Load environment variables from .env file
@@ -151,7 +151,7 @@ async def ask_error(ctx, error):
 
     If an exception occurs during the execution of the 'ask' command,
     this function sends a message to the user with a link to create a new
-    issue on GitHub and includes the traceback of the error.
+    issue on GitHub and includes the error message.
 
     Args:
         ctx: The context of the command.
@@ -162,15 +162,17 @@ async def ask_error(ctx, error):
     
     # Returns a call to action to user
     if isinstance(error, commands.CommandInvokeError):
-        original_error = error.original
-        trace = ''.join(traceback.format_exception(
-            type(original_error), original_error, original_error.__traceback__))
+        now_tsstr = now().strftime('%Y-%m-%d %H:%M:%S')
         error_message = (
-            f"An error occurred while processing your request. "
-            f"Please create a new issue at https://github.com/JordieB/seria/iss"
-            f"ues/new with the following details:\n\n```python\n{trace}\n```"
+            f"An error occurred while processing your question. Please create a"
+            f" new issue at https://github.com/JordieB/seria/issues/new with"
+            f"the following details:\n\n @ {now_tsstr} I encountered \n\n"
+            f"```python\n{error}\n```"
         )
         await ctx.send(error_message)
+    else:
+        # Log the error message instead of the full traceback
+        logger.error(f"An error occurred: {error}")
 
 # Run bot
 if __name__ == '__main__':
