@@ -12,6 +12,8 @@ from .logger import CustomLogger
 
 
 logger = CustomLogger('LangChainHandler')
+ddb_logger = logging.getLogger('langchain')
+ddb_logger = logging.getLogger('chromadb')
 ddb_logger = logging.getLogger('duckdb')
 ddb_logger.setLevel(logging.ERROR)
 
@@ -30,7 +32,8 @@ class LangChainHandler:
                          'will be about the game Dungeon Fighter Online, also '
                          'known as DFO or DFOG or Dungeon Fighter Online Global'
                          '. Please use this information and the context above '
-                         'to answer the following question.\n\nQ: {question}')
+                         'to answer the following question.\n\nQ: {question}\n'
+                         '\nA: ')
     
     @logger.log_execution_time
     def process_texts(self, texts: List[str]) -> List[str]:
