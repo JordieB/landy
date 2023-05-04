@@ -1,9 +1,3 @@
-# Ignore notebooks
-*.ipynb
-
-# Ignore act
-bin
-
 # Ignore README draft
 README_draft.txt
 

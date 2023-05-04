@@ -7,3 +7,5 @@ beautifulsoup4
 nltk
 nose
 py-cord
+scrapy
+scrapy-fake-useragent
