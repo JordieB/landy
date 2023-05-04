@@ -12,9 +12,11 @@ from .logger import CustomLogger
 
 
 logger = CustomLogger('LangChainHandler')
-ddb_logger = logging.getLogger('langchain')
-ddb_logger = logging.getLogger('chromadb')
+langchain_logger = logging.getLogger('langchain')
+chromadb_logger = logging.getLogger('chromadb')
 ddb_logger = logging.getLogger('duckdb')
+langchain_logger.setLevel(logging.ERROR)
+chromadb_logger.setLevel(logging.ERROR)
 ddb_logger.setLevel(logging.ERROR)
 
 class LangChainHandler:
