@@ -7,7 +7,7 @@ from discord.ext import commands
 from discord.ui import Modal, View, InputText, button
 from utils.lc_handler import LangChainHandler
 from utils.logger import CustomLogger
-from datetime.datetime import now
+from datetime import datetime
 
 
 # Load environment variables from .env file
@@ -162,7 +162,7 @@ async def ask_error(ctx, error):
     
     # Returns a call to action to user
     if isinstance(error, commands.CommandInvokeError):
-        now_tsstr = now().strftime('%Y-%m-%d %H:%M:%S')
+        now_tsstr = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         error_message = (
             f"An error occurred while processing your question. Please create a"
             f" new issue at https://github.com/JordieB/seria/issues/new with"

@@ -1,10 +1,10 @@
 import re
 import string
+import json
+import os
 from functools import reduce
 from unicodedata import normalize
-
 from bs4 import BeautifulSoup
-import nltk
 from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
 from nltk.stem import WordNetLemmatizer

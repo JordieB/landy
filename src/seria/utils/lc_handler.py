@@ -24,14 +24,17 @@ class LangChainHandler:
         self.embedder = OpenAIEmbeddings()
         self.llm = OpenAI(temperature=0.9,
                           model_name='gpt-4-32k')
-        self.template = (f'SYSTEM: You are an AI chatbot, and the following con'
-                         f'text and question will be about the video game Dunge'
-                         f'on Fighter Online (aka DFO, DFOG, Dungeon Fighter On'
-                         f'line Global). Please carefully consider the question'
-                         f', and use the this information as well as the follow'
-                         f'ing following context to answer the question at the '
-                         f'end.\n\n===\nContext: {doc}\n===\n\nQ: {question}\n '
-                         f'\nA: ')
+        self.template = '''
+        SYSTEM: You will answer questions about a video game called Dungeon
+        Fighter Online Global (aka Dungeon Fighter Online, DFO, DFOG) while
+        satisfying the following requirements:
+        * You will think carefully about your answer
+        * Your answers will be concise
+        * Your answers will also incoprorate any relevant context from the text
+        provided within the pair of triple backticks.
+        *
+        
+        '''
     
     @logger.log_execution_time
     def process_texts(self, texts: List[str]) -> List[str]:
@@ -74,7 +77,7 @@ class LangChainHandler:
         # Else, make one from texts
         else:
             self.process_texts(texts)
-            self.db = Chroma.from_documents(documents=docs,
+            self.db = Chroma.from_documents(documents=self.docs,
                                             embedding=self.embedder,
                                             persist_directory=persist_directory)
             self.db.persist()
