@@ -20,16 +20,18 @@ class LangChainHandler:
     def __init__(self):
         self.preprocessor = TextPreprocessor()
         # default chunk_size = 4k
-        self.text_splitter = TokenTextSplitter(chunk_size=3000)  
+        self.text_splitter = TokenTextSplitter(chunk_size=31000)  
         self.embedder = OpenAIEmbeddings()
         self.llm = OpenAI(temperature=0.9,
-                          model_name='text-davinci-003')
-        self.template = ('===\nContext: {doc}\n===\n\nSYSTEM: This question '
-                         'will be about the game Dungeon Fighter Online, also '
-                         'known as DFO or DFOG or Dungeon Fighter Online Global'
-                         '. Please use this information and the context above '
-                         'to answer the following question.\n\nQ: {question}\n'
-                         '\nA: ')
+                          model_name='gpt-4-32k')
+        self.template = (f'SYSTEM: You are an AI chatbot, and the following con'
+                         f'text and question will be about the video game Dunge'
+                         f'on Fighter Online (aka DFO, DFOG, Dungeon Fighter On'
+                         f'line Global). Please carefully consider the question'
+                         f', and use the this information as well as the follow'
+                         f'ing following context to answer the question at the '
+                         f'end.\n\n===\nContext: {doc}\n===\n\nQ: {question}\n '
+                         f'\nA: ')
     
     @logger.log_execution_time
     def process_texts(self, texts: List[str]) -> List[str]:
@@ -46,17 +48,16 @@ class LangChainHandler:
         self.docs = self.text_splitter.create_documents(processed_texts)
         self.docs = self.text_splitter.split_documents(self.docs)
         logger.debug('Texts finished processing')
-        return self.docs
 
-    def create_chroma_db(self,
-                         docs: List[str],
-                         persist_directory: str = 'db') -> Chroma:
+    def get_chroma_db(self,
+                      texts,
+                      persist_directory: str = 'db') -> Chroma:
         """
         Create a Chroma database if it does not already exist, or load an
         existing one.
         
         Args:
-            docs (List[str]): A list of documents.
+            texts (List[str]): A list of documents.
             persist_directory (str, optional): The directory to store the
                                                database on disk. Defaults to
                                                'db'.
@@ -70,8 +71,9 @@ class LangChainHandler:
             self.db = Chroma(persist_directory=persist_directory,
                              embedding_function=self.embedder)
             logger.debug('Using pre-existing Chroma DB')
-        # Else, make one from documents
+        # Else, make one from texts
         else:
+            self.process_texts(texts)
             self.db = Chroma.from_documents(documents=docs,
                                             embedding=self.embedder,
                                             persist_directory=persist_directory)
@@ -99,8 +101,7 @@ class LangChainHandler:
             str: The answer to the query based on the input texts.
         """
         logger.info('Starting to answer a question from a user...')
-        self.process_texts(texts)
-        self.create_chroma_db(self.docs)
+        self.get_chroma_db(self.docs, texts)  # and make new db if necessary
         self._build_template()
         result_docs = self.db.similarity_search(query)
         logger.debug('Found most relevant document from vecstore')
@@ -111,7 +112,3 @@ class LangChainHandler:
         logger.debug('LLM has answered the user\'s question')
 
         return doc_based_answer
-
-if __name__ == '__main__':
-    lc_handler = LangChainHandler()
-    
