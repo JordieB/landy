@@ -24,9 +24,9 @@ class LangChainHandler:
     def __init__(self):
         self.preprocessor = TextPreprocessor()
         # default chunk_size = 4k
-        self.text_splitter = TokenTextSplitter(chunk_size=31000)  
+        self.text_splitter = TokenTextSplitter(chunk_size=7000)  
         self.embedder = OpenAIEmbeddings()
-        self.chat = ChatOpenAI(temperature=0, model_name='gpt-4-32k')
+        self.chat = ChatOpenAI(temperature=0, model_name='gpt-4')
         # Template building
         self.system_template_str = '''
         SYSTEM: You are a helpful AI question answerer. You will answer user
@@ -40,8 +40,8 @@ class LangChainHandler:
         * Please do not answer any questions that are not related to DFOG.
         * If you are unclear about what the user is asking, please ask for 
         clarification from the user.
-        * If your final answer is longer than a paragraph, please provide a clearly
-        labeled summary at the beginning of your answer.
+        * If your final answer is longer than a paragraph, please provide a
+        clearly labeled summary at the beginning of your answer.
         
         Context:
         ```
