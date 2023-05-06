@@ -1,12 +1,16 @@
 import os
 import logging
 from typing import List
-from langchain.llms import OpenAI
-from langchain.docstore.document import Document
+from langchain.chat_models import ChatOpenAI
 from langchain.embeddings.openai import OpenAIEmbeddings
 from langchain.text_splitter import TokenTextSplitter
 from langchain.vectorstores import Chroma
 from langchain import PromptTemplate
+from langchain.prompts.chat import (
+    ChatPromptTemplate,
+    SystemMessagePromptTemplate,
+    HumanMessagePromptTemplate
+)
 from .text_preprocessor import TextPreprocessor
 from .logger import CustomLogger
 
@@ -22,12 +26,13 @@ class LangChainHandler:
         # default chunk_size = 4k
         self.text_splitter = TokenTextSplitter(chunk_size=31000)  
         self.embedder = OpenAIEmbeddings()
-        self.llm = OpenAI(temperature=0,
-                          model_name='gpt-4-32k')
-        self.template = '''
-        SYSTEM: You will answer user questions about a video game called Dungeon
-        Fighter Online Global (aka Dungeon Fighter Online, DFO, DFOG) while
-        satisfying the following requirements:
+        self.chat = ChatOpenAI(temperature=0, model_name='gpt-4-32k')
+        # Template building
+        self.system_template_str = '''
+        SYSTEM: You are a helpful AI question answerer. You will answer user
+        questions about a video game called Dungeon Fighter Online Global (aka
+        Dungeon Fighter Online, DFO, DFOG) while satisfying the following
+        requirements:
         * You will think carefully about your answers
         * Your answers will be concise
         * Your answers will also incoprorate any relevant context from the text
@@ -42,17 +47,23 @@ class LangChainHandler:
         ```
         {doc}
         ```
-        
-        User question: {question}
         '''
-        self._build_template()
+        self.human_template_str = 'Q: {question}'
+        self._build_templates()
 
-    def _build_template(self) -> None:
+    def _build_templates(self) -> None:
         """
         Build a PromptTemplate using the template string.
         """
-        self.template = PromptTemplate(template=self.template,
-                                       input_variables=['question', 'doc'])
+
+        sys_template = SystemMessagePromptTemplate.from_template(
+            self.system_template_str
+        )
+        hum_template = HumanMessagePromptTemplate.from_template(
+            self.human_template_str
+        )
+        templates = [sys_template, hum_template]
+        self.chat_template = ChatPromptTemplate.from_messages(templates)
     
     @logger.log_execution_time
     def process_texts(self, texts: List[str]) -> List[str]:
@@ -88,20 +99,20 @@ class LangChainHandler:
         logger.debug('Attempt to load an existing DB...')
         # If index already exists:
         if os.path.isdir(persist_directory + '/index'):
-            logger.debug('Chroma DB found...')
+            logger.info('Chroma DB found...')
             self.db = Chroma(persist_directory=persist_directory,
                              embedding_function=self.embedder)
             logger.debug('Using pre-existing Chroma DB...')
         # Else, make one from texts
         else:
-            logger.debug('Creating a new persistant DB...')
+            logger.info('Creating a new persistant DB...')
             self.process_texts(texts)
             self.db = Chroma.from_documents(documents=self.docs,
                                             embedding=self.embedder,
                                             persist_directory=persist_directory)
             self.db.persist()
 
-        logger.debug('DB loaded')
+        logger.info('DB loaded')
         return self.db
 
     @logger.log_execution_time
@@ -123,10 +134,13 @@ class LangChainHandler:
         most_relevant_doc = result_docs[0].page_content
         logger.debug('Found most relevant document from vecstore')
 
-        prompt = self.template.format(question=query, doc=most_relevant_doc)
+        prompt = self.chat_template.format_prompt(
+            question=query,
+            doc=most_relevant_doc)
+        msgs = prompt.to_messages()
         logger.debug('Asking LLM for doc-based answer...')
 
-        doc_based_answer = self.llm(prompt)
+        doc_based_answer = self.chat(msgs)
         logger.debug('LLM has answered the user\'s question')
 
         return doc_based_answer

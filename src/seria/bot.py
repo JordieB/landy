@@ -24,7 +24,8 @@ bot = commands.Bot(intents=intents)
 # Get the absolute path of the directory containing the script
 script_dir = os.path.dirname(os.path.abspath(__file__))
 # Construct a file path relative to the script's directory
-data_file = os.path.join(script_dir, '..', '..', 'data', 'input_blogs.json')
+data_file = os.path.join(script_dir, '..', '..', 'data', 'interim',
+                         'blogs.json')
 # Load the data from a json file
 with open(data_file, 'r') as f:
     data = json.load(f)
