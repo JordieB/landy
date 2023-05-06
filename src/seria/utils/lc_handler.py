@@ -24,7 +24,7 @@ class LangChainHandler:
     def __init__(self):
         self.preprocessor = TextPreprocessor()
         # default chunk_size = 4k
-        self.text_splitter = TokenTextSplitter(chunk_size=7000)  
+        self.text_splitter = TokenTextSplitter(chunk_size=6500)  
         self.embedder = OpenAIEmbeddings()
         self.chat = ChatOpenAI(temperature=0, model_name='gpt-4')
         # Template building
