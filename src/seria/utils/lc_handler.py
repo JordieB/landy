@@ -45,6 +45,14 @@ class LangChainHandler:
         
         User question: {question}
         '''
+        self._build_template()
+
+    def _build_template(self) -> None:
+        """
+        Build a PromptTemplate using the template string.
+        """
+        self.template = PromptTemplate(template=self.template,
+                                       input_variables=['question', 'doc'])
     
     @logger.log_execution_time
     def process_texts(self, texts: List[str]) -> List[str]:
@@ -63,7 +71,7 @@ class LangChainHandler:
         logger.debug('Texts finished processing')
 
     def get_chroma_db(self,
-                      texts,
+                      texts: List[str],
                       persist_directory: str = 'db') -> Chroma:
         """
         Create a Chroma database if it does not already exist, or load an
@@ -77,29 +85,24 @@ class LangChainHandler:
         Returns:
             Chroma: A Chroma database.
         """
-        # logger.log('Attempt to load an existing DB...')
+        logger.debug('Attempt to load an existing DB...')
         # If index already exists:
         if os.path.isdir(persist_directory + '/index'):
             logger.debug('Chroma DB found...')
             self.db = Chroma(persist_directory=persist_directory,
                              embedding_function=self.embedder)
-            logger.debug('Using pre-existing Chroma DB')
+            logger.debug('Using pre-existing Chroma DB...')
         # Else, make one from texts
         else:
+            logger.debug('Creating a new persistant DB...')
             self.process_texts(texts)
             self.db = Chroma.from_documents(documents=self.docs,
                                             embedding=self.embedder,
                                             persist_directory=persist_directory)
             self.db.persist()
 
+        logger.debug('DB loaded')
         return self.db
-
-    def _build_template(self) -> None:
-        """
-        Build a PromptTemplate using the template string.
-        """
-        self.template = PromptTemplate(template=self.template,
-                                       input_variables=['question', 'doc'])
 
     @logger.log_execution_time
     def ask_doc_based_question(self, texts: List[str], query: str) -> str:
@@ -114,13 +117,15 @@ class LangChainHandler:
             str: The answer to the query based on the input texts.
         """
         logger.info('Starting to answer a question from a user...')
-        self.get_chroma_db(self.docs, texts)  # and make new db if necessary
-        self._build_template()
+        self.get_chroma_db(texts)  # and make new db if necessary
+
         result_docs = self.db.similarity_search(query)
-        logger.debug('Found most relevant document from vecstore')
         most_relevant_doc = result_docs[0].page_content
+        logger.debug('Found most relevant document from vecstore')
+
         prompt = self.template.format(question=query, doc=most_relevant_doc)
         logger.debug('Asking LLM for doc-based answer...')
+
         doc_based_answer = self.llm(prompt)
         logger.debug('LLM has answered the user\'s question')
 
