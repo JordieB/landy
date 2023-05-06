@@ -25,15 +25,25 @@ class LangChainHandler:
         self.llm = OpenAI(temperature=0.9,
                           model_name='gpt-4-32k')
         self.template = '''
-        SYSTEM: You will answer questions about a video game called Dungeon
+        SYSTEM: You will answer user questions about a video game called Dungeon
         Fighter Online Global (aka Dungeon Fighter Online, DFO, DFOG) while
         satisfying the following requirements:
-        * You will think carefully about your answer
+        * You will think carefully about your answers
         * Your answers will be concise
         * Your answers will also incoprorate any relevant context from the text
         provided within the pair of triple backticks.
-        *
+        * Please do not answer any questions that are not related to DFOG.
+        * If you are unclear about what the user is asking, please ask for 
+        clarification from the user.
+        * If your final answer is longer than a paragraph, please provide a clearly
+        labeled summary at the beginning of your answer.
         
+        Context:
+        ```
+        {doc}
+        ```
+        
+        User question: {question}
         '''
     
     @logger.log_execution_time
