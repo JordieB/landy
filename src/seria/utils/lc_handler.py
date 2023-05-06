@@ -81,8 +81,7 @@ class LangChainHandler:
         self.docs = self.text_splitter.split_documents(self.docs)
         logger.debug('Texts finished processing')
 
-    def _get_chroma_db(self,
-                      persist_directory: str = 'db') -> Chroma:
+    def _get_chroma_db(self) -> None:
         """
         Create a Chroma database if it does not already exist, or load an
         existing one.
@@ -95,13 +94,15 @@ class LangChainHandler:
         Returns:
             Chroma: A Chroma database.
         """
+        # Get the absolute path of the directory containing the script
+        script_dir = os.path.dirname(os.path.abspath(__file__))
+        persist_directory = os.path.join(script_dir, '..', '..', '..', 'db')
         self.db = Chroma(persist_directory=persist_directory,
                          embedding_function=self.embedder)
         logger.info('Existing DB loaded')
-        return self.db
 
     @logger.log_execution_time
-    def ask_doc_based_question(self, texts: List[str], query: str) -> str:
+    def ask_doc_based_question(self, query: str) -> str:
         """
         Ask a question based on a list of input texts and a query.
 

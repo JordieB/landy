@@ -24,17 +24,6 @@ intents = Intents.default()
 intents.message_content = True
 bot = commands.Bot(intents=intents)
 
-# Get the absolute path of the directory containing the script
-script_dir = os.path.dirname(os.path.abspath(__file__))
-# Construct a file path relative to the script's directory
-data_file = os.path.join(script_dir, '..', '..', 'data', 'interim',
-                         'blogs.json')
-# Load the data from a json file
-with open(data_file, 'r') as f:
-    data = json.load(f)
-# Grab just the blog posts data in a 2d array
-posts = [post for post in data['blog'].values()]
-
 # Create a LangChainHandler instance
 LC = LangChainHandler()
 
@@ -139,10 +128,10 @@ async def ask(ctx: ApplicationContext, *, question: str):
     await ctx.defer(ephemeral=False)
     
     # Get the answer for the query based on the documents
-    answer = LC.ask_doc_based_question(posts, question)
+    answer = LC.ask_doc_based_question(question)
 
     # Send the answer back to the user
-    follow_up_text = (f'> Q: {question}\n\nAnswer below:\n{answer}\n\n'
+    follow_up_text = (f'> Q: {question}\n\nAnswer below:\n\n{answer}\n\n'
                       f'Please give this answer feedback with the buttons'
                       f' below!')
     await ctx.send_followup(follow_up_text,
@@ -151,8 +140,7 @@ async def ask(ctx: ApplicationContext, *, question: str):
 
 # Ask command error handler
 @ask.error
-async def ask_error(ctx: discord.ApplicationContext,
-                    error: discord.DiscordException):
+async def ask_error(ctx: discord.ApplicationContext, error):
     """
     Error handler for the 'ask' command.
 
@@ -173,11 +161,11 @@ async def ask_error(ctx: discord.ApplicationContext,
     # Returns a call to action to user
     now_tsstr = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     error_message = (
-        f"An error occurred while processing your question. Please create a"
-        f" new issue at https://github.com/JordieB/seria/issues/new with "
-        f"the following details:\n\n```The '{ctx.command.qualified_name}' "
-        f"command with args {ctx.selected_options} @ {now_tsstr} gave "
-        f"{ctx.user} the following error:\n\n{formatted_error_str}```"
+        f"You broke it >:[ good job.\n\nPlease create a new issue at "
+        f"https://github.com/JordieB/seria/issues/new with the following detail"
+        f"s:\n\n```The '{ctx.command.qualified_name}' command with args "
+        f"{ctx.selected_options} @ {now_tsstr} gave {ctx.user} the following"
+        f"error:\n\n{error}```"
     )
     await ctx.send(error_message)
 
