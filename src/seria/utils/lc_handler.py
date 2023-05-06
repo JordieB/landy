@@ -22,7 +22,7 @@ class LangChainHandler:
         # default chunk_size = 4k
         self.text_splitter = TokenTextSplitter(chunk_size=31000)  
         self.embedder = OpenAIEmbeddings()
-        self.llm = OpenAI(temperature=0.9,
+        self.llm = OpenAI(temperature=0,
                           model_name='gpt-4-32k')
         self.template = '''
         SYSTEM: You will answer user questions about a video game called Dungeon
