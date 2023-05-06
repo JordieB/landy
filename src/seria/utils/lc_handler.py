@@ -26,7 +26,7 @@ class LangChainHandler:
         # default chunk_size = 4k
         self.text_splitter = TokenTextSplitter(chunk_size=6500)  
         self.embedder = OpenAIEmbeddings()
-        self.chat = ChatOpenAI(temperature=0, model_name='gpt-4')
+        self.chat = ChatOpenAI(temperature=0.9, model_name='gpt-4')
         # Template building
         self.system_template_str = '''
         SYSTEM: You are a helpful AI question answerer. You will answer user
@@ -40,8 +40,6 @@ class LangChainHandler:
         * Please do not answer any questions that are not related to DFOG.
         * If you are unclear about what the user is asking, please ask for 
         clarification from the user.
-        * If your final answer is longer than a paragraph, please provide a
-        clearly labeled summary at the beginning of your answer.
         
         Context:
         ```
@@ -50,6 +48,8 @@ class LangChainHandler:
         '''
         self.human_template_str = 'Q: {question}'
         self._build_templates()
+        # Start ChromaDB
+        self._get_chroma_db()
 
     def _build_templates(self) -> None:
         """
@@ -81,8 +81,7 @@ class LangChainHandler:
         self.docs = self.text_splitter.split_documents(self.docs)
         logger.debug('Texts finished processing')
 
-    def get_chroma_db(self,
-                      texts: List[str],
+    def _get_chroma_db(self,
                       persist_directory: str = 'db') -> Chroma:
         """
         Create a Chroma database if it does not already exist, or load an
@@ -96,23 +95,9 @@ class LangChainHandler:
         Returns:
             Chroma: A Chroma database.
         """
-        logger.debug('Attempt to load an existing DB...')
-        # If index already exists:
-        if os.path.isdir(persist_directory + '/index'):
-            logger.info('Chroma DB found...')
-            self.db = Chroma(persist_directory=persist_directory,
-                             embedding_function=self.embedder)
-            logger.debug('Using pre-existing Chroma DB...')
-        # Else, make one from texts
-        else:
-            logger.info('Creating a new persistant DB...')
-            self.process_texts(texts)
-            self.db = Chroma.from_documents(documents=self.docs,
-                                            embedding=self.embedder,
-                                            persist_directory=persist_directory)
-            self.db.persist()
-
-        logger.info('DB loaded')
+        self.db = Chroma(persist_directory=persist_directory,
+                         embedding_function=self.embedder)
+        logger.info('Existing DB loaded')
         return self.db
 
     @logger.log_execution_time
@@ -128,7 +113,6 @@ class LangChainHandler:
             str: The answer to the query based on the input texts.
         """
         logger.info('Starting to answer a question from a user...')
-        self.get_chroma_db(texts)  # and make new db if necessary
 
         result_docs = self.db.similarity_search(query)
         most_relevant_doc = result_docs[0].page_content
@@ -140,7 +124,7 @@ class LangChainHandler:
         msgs = prompt.to_messages()
         logger.debug('Asking LLM for doc-based answer...')
 
-        doc_based_answer = self.chat(msgs)
+        doc_based_answer = self.chat(msgs).content
         logger.debug('LLM has answered the user\'s question')
 
         return doc_based_answer

@@ -32,6 +32,9 @@ with open(data_file, 'r') as f:
 # Grab just the blog posts data in a 2d array
 posts = [post for post in data['blog'].values()]
 
+# Create a LangChainHandler instance
+LC = LangChainHandler()
+
 # Set-up feedback modal for downvotes
 class ThumbsDownFeedbackModal(Modal):
     """
@@ -127,19 +130,18 @@ async def ask(ctx: ApplicationContext, *, question: str):
         question (str): The query that the user entered.
     """
     global posts
+    global LC
     
     # Show user bot is thinking
     await ctx.defer(ephemeral=False)
     
-    # Create a LangChainHandler instance
-    lc = LangChainHandler()
     
     # Get the answer for the query based on the documents
-    answer = lc.ask_doc_based_question(posts, question)
+    answer = LC.ask_doc_based_question(posts, question)
 
     # Send the answer back to the user
-    follow_up_text = (f'Q: {question}\n\nA: {answer}\n\nPlease give this answer'
-                      f' feedback with the buttons below!')
+    follow_up_text = (f'Q: {question}\n\n{answer}\n\nPlease give this answer '
+                      f'feedback with the buttons below!')
     await ctx.send_followup(follow_up_text,
                             ephemeral=False,
                             view=FeedbackView(timeout=None))
