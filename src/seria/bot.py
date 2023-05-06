@@ -1,13 +1,16 @@
 import os
 import json
+import traceback
+from datetime import datetime
 from dotenv import load_dotenv
+
 import discord
 from discord import Intents, ApplicationContext, Interaction, Embed
 from discord.ext import commands
 from discord.ui import Modal, View, InputText, button
+
 from utils.lc_handler import LangChainHandler
 from utils.logger import CustomLogger
-from datetime import datetime
 
 
 # Load environment variables from .env file
@@ -135,20 +138,21 @@ async def ask(ctx: ApplicationContext, *, question: str):
     # Show user bot is thinking
     await ctx.defer(ephemeral=False)
     
-    
     # Get the answer for the query based on the documents
     answer = LC.ask_doc_based_question(posts, question)
 
     # Send the answer back to the user
-    follow_up_text = (f'Q: {question}\n\n{answer}\n\nPlease give this answer '
-                      f'feedback with the buttons below!')
+    follow_up_text = (f'> Q: {question}\n\nAnswer below:\n{answer}\n\n'
+                      f'Please give this answer feedback with the buttons'
+                      f' below!')
     await ctx.send_followup(follow_up_text,
                             ephemeral=False,
                             view=FeedbackView(timeout=None))
 
 # Ask command error handler
 @ask.error
-async def ask_error(ctx, error):
+async def ask_error(ctx: discord.ApplicationContext,
+                    error: discord.DiscordException):
     """
     Error handler for the 'ask' command.
 
@@ -160,22 +164,22 @@ async def ask_error(ctx, error):
         ctx: The context of the command.
         error: The error raised during the execution of the 'ask' command.
     """
+    # Formats error
+    full_error = traceback.format_exception(type(error), error,
+                                            error.__traceback__)
+    formatted_error_str = ''.join(full_error)
     # Logs the error
-    logger.error(error, exc_info=True)
-    
+    logger.error(formatted_error_str)
     # Returns a call to action to user
-    if isinstance(error, commands.CommandInvokeError):
-        now_tsstr = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        error_message = (
-            f"An error occurred while processing your question. Please create a"
-            f" new issue at https://github.com/JordieB/seria/issues/new with"
-            f"the following details:\n\n @ {now_tsstr} I encountered \n\n"
-            f"```python\n{error}\n```"
-        )
-        await ctx.send(error_message)
-    else:
-        # Log the error message instead of the full traceback
-        logger.error(f"An error occurred: {error}")
+    now_tsstr = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    error_message = (
+        f"An error occurred while processing your question. Please create a"
+        f" new issue at https://github.com/JordieB/seria/issues/new with "
+        f"the following details:\n\n```The '{ctx.command.qualified_name}' "
+        f"command with args {ctx.selected_options} @ {now_tsstr} gave "
+        f"{ctx.user} the following error:\n\n{formatted_error_str}```"
+    )
+    await ctx.send(error_message)
 
 # Run bot
 if __name__ == '__main__':
