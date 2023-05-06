@@ -132,8 +132,8 @@ async def ask(ctx: ApplicationContext, *, question: str):
 
     # Send the answer back to the user
     follow_up_text = (f'> Q: {question}\n\nAnswer below:\n\n{answer}\n\n'
-                      f'Please give this answer feedback with the buttons'
-                      f' below!')
+                      f'_Please give this answer feedback with the buttons'
+                      f' below_!')
     await ctx.send_followup(follow_up_text,
                             ephemeral=False,
                             view=FeedbackView(timeout=None))

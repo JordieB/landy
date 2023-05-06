@@ -29,9 +29,9 @@ class LangChainHandler:
         self.chat = ChatOpenAI(temperature=0.9, model_name='gpt-4')
         # Template building
         self.system_template_str = '''
-        SYSTEM: You are a helpful AI question answerer. You will answer user
-        questions about a video game called Dungeon Fighter Online Global (aka
-        Dungeon Fighter Online, DFO, DFOG) while satisfying the following
+        SYSTEM: You are a helpful AI question answerer. User questions will be
+        referring to the video game called Dungeon Fighter Online Global
+        (aka Dungeon Fighter Online, DFO, DFOG) while satisfying the following
         requirements:
         * You will think carefully about your answers
         * Your answers will be concise
