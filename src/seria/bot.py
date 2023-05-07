@@ -76,8 +76,8 @@ class FeedbackView(View):
             interaction (Interaction): The user interaction that triggered the
                                        view.
         """
-        await interaction.response.send_message("Thank you for the feedback!",
-                                                ephemeral=True)
+        await interaction.response.send_message("Glad it was helpful!",
+                                                ephemeral=False)
         
     @button(style=discord.ButtonStyle.red, emoji="👎")
     async def down_button_callback(self,
