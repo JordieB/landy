@@ -1,10 +1,6 @@
 # Ignore README draft
 README_draft.txt
 
-# Ignore Chroma stores for now
-.chroma
-db
-
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
