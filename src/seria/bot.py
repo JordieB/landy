@@ -128,7 +128,8 @@ async def ask(ctx: ApplicationContext, *, question: str):
     await ctx.defer(ephemeral=False)
     
     # Get the answer for the query based on the documents
-    answer = LC.ask_doc_based_question(question)
+    logger.info(f'Starting to answer a question from a {ctx.user}: {question}')
+    answer = await LC.ask_doc_based_question(question)
 
     # Send the answer back to the user
     follow_up_text = (f'> Q: {question}\n\nAnswer below:\n\n{answer}\n\n'
@@ -158,13 +159,18 @@ async def ask_error(ctx: discord.ApplicationContext, error):
     formatted_error_str = ''.join(full_error)
     # Logs the error
     logger.error(formatted_error_str)
+
+    # Catch the discord.errors.NotFound exception and return/stop infinite defer
+    if isinstance(error, discord.errors.NotFound):
+        return
+
     # Returns a call to action to user
     now_tsstr = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     error_message = (
         f"You broke it >:[ good job.\n\nPlease create a new issue at "
         f"https://github.com/JordieB/seria/issues/new with the following detail"
         f"s:\n\n```The '{ctx.command.qualified_name}' command with args "
-        f"{ctx.selected_options} @ {now_tsstr} gave {ctx.user} the following"
+        f"{ctx.selected_options} @ {now_tsstr} gave {ctx.user} the following "
         f"error:\n\n{error}```"
     )
     await ctx.send(error_message)

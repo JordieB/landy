@@ -1,7 +1,8 @@
-import logging
 import sys
-from functools import wraps
 import time
+import logging
+import asyncio
+from functools import wraps
 
 
 class CustomLogger:
@@ -30,34 +31,6 @@ class CustomLogger:
         self.logger.setLevel(self.level)
         self._remove_existing_handlers()
         self.handler = self._add_custom_handler()
-        
-    def log_execution_time(self, func):
-        """
-        Decorator that logs the execution time of the given function.
-
-        :param func: The function whose execution time needs to be logged.
-        :return: A wrapped function that logs the execution time.
-
-        Example usage:
-            logger = CustomLogger()
-
-            @logger.log_execution_time
-            def example_function():
-                time.sleep(1)
-
-            logger.info("Starting the example function...")
-            example_function()
-            logger.info("Finished the example function.")
-        """
-        @wraps(func)
-        def wrapper(*args, **kwargs):
-            start_time = time.time()
-            result = func(*args, **kwargs)
-            elapsed_time = time.time() - start_time
-            self.info(f"{func.__name__} executed in {elapsed_time:.2f} secs.")
-            return result
-
-        return wrapper
 
     def _remove_existing_handlers(self):
         """Remove any existing handlers attached to the logger."""
@@ -92,7 +65,45 @@ class CustomLogger:
         """Log a critical message."""
         self.logger.critical(msg)
 
-        
+    def log_execution_time(self, func):
+        """
+        Decorator that logs the execution time of the given function.
+
+        :param func: The function whose execution time needs to be logged.
+        :return: A wrapped function that logs the execution time.
+
+        Example usage:
+            logger = CustomLogger()
+
+            @logger.log_execution_time
+            async def example_async_function():
+                await asyncio.sleep(1)
+
+            @logger.log_execution_time
+            def example_function():
+                time.sleep(1)
+
+        """
+        @wraps(func)
+        async def wrapper_async(*args, **kwargs):
+            start_time = time.time()
+            result = await func(*args, **kwargs)
+            elapsed_time = time.time() - start_time
+            self.info(f"{func.__name__} executed in {elapsed_time:.2f} secs.")
+            return result
+
+        def wrapper_sync(*args, **kwargs):
+            start_time = time.time()
+            result = func(*args, **kwargs)
+            elapsed_time = time.time() - start_time
+            self.info(f"{func.__name__} executed in {elapsed_time:.2f} secs.")
+            return result
+
+        if asyncio.iscoroutinefunction(func):
+            return wrapper_async
+        else:
+            return wrapper_sync
+
 if __name__ == '__main__':
     logger = CustomLogger('seria_bot')
     logger.info("This is an info message.")
