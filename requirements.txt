@@ -8,7 +8,6 @@ nltk
 
 pytest
 pytest-asyncio
-discord-ext-test
 
 discord.py
 py-cord
