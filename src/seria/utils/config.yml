@@ -1,0 +1,59 @@
+database:
+    qna_results:
+        question_uuid:
+            dtype: string
+            desc: "UUID4 identifier of the question"
+            is_pk: true
+        question:
+            dtype: string
+            desc: "User's question text"
+        answer:
+            dtype: string
+            desc: "LLM's answer to the user's question"
+        question_timestamp:
+            dtype: timestamp
+            desc: "Timestamp of when the question was asked"
+        commit_hash:
+            dtype: string
+            desc: "Commit hash of the main branch when the question was answered"
+        commit_hash_timestamp:
+            dtype: timestamp
+            desc: "Timestamp of the current commit"
+    qna_feedback:
+        question_uuid:
+            dtype: string
+            desc: "UUID4 identifier of the question (foreign key)"
+            is_pk: true
+            is_fk: true
+            references: qna_results(question_uuid)
+        is_positive:
+            dtype: bool
+            desc: "Indicates if the feedback is positive (True) or negative (False)"
+        feedback_commentary:
+            dtype: string, nullable
+            desc: "Feedback commentary text; if positive, can be null"
+    qna_logs:
+        log_id:
+            dtype: string
+            desc: "UUID4 identifier of the log entry"
+            is_pk: true
+        question_uuid:
+            dtype: string
+            desc: "UUID4 identifier of the question (foreign key)"
+            is_fk: true
+            references: qna_results(question_uuid)
+        log_level:
+            dtype: string
+            desc: "Log level (e.g., DEBUG, INFO, WARNING, ERROR, CRITICAL)"
+        log_timestamp:
+            dtype: timestamp
+            desc: "Timestamp of when the log entry was created"
+        log_message:
+            dtype: string
+            desc: "Content of the log message"
+        log_module:
+            dtype: string, nullable
+            desc: "Module or function where the log entry was generated (optional)"
+        log_additional_data:
+            dtype: jsonb, nullable
+            desc: "Additional data related to the log entry as a JSON object (optional)"

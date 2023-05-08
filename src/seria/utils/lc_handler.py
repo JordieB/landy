@@ -1,115 +1,90 @@
 import os
-import re
-import logging
 import asyncio
-import aiohttp
 from typing import List
+from uuid import uuid4
+from datetime import datetime
+
 from langchain.chat_models import ChatOpenAI
 from langchain.embeddings.openai import OpenAIEmbeddings
 from langchain.text_splitter import TokenTextSplitter
 from langchain.vectorstores import Chroma
-from langchain import PromptTemplate
 from langchain.prompts.chat import (
     ChatPromptTemplate,
     SystemMessagePromptTemplate,
     HumanMessagePromptTemplate
 )
+
 from .text_preprocessor import TextPreprocessor
 from .logger import CustomLogger
-
+from .qnadatabase import QnADatabase
 
 logger = CustomLogger(__name__)
+
 
 class LangChainHandler:
     """
     A class for handling the LangChain library components.
     """
+
     def __init__(self):
         self.preprocessor = TextPreprocessor()
         self.text_splitter = TokenTextSplitter(chunk_size=6500)
         self.embedder = OpenAIEmbeddings()
-        self.chat = ChatOpenAI(temperature=0.9, model_name='gpt-4')
-        # Template building
-        self.system_template_str = '''
-        SYSTEM: You are a helpful AI question answerer. Please answer questions
-        while satisfying the following requirements:
-        * You will think carefully about your answers
-        * You will only answer questions regarding the game Dungeon Fighter
-        Online Global (aka DFOG, DFO, Dungeon Fighter Online)
-        * Your answers will be concise
-        * Your answers will also incoprorate any relevant context from the text
-        provided within the pair of triple backticks
-        * If you are unclear about what the user is asking, please ask for 
-        clarification
-        
-        Context:
-        ```
-        {doc}
-        ```
-        '''
-        self.human_template_str = 'Q: {question}'
-        
-        # Build
+        self.chat = ChatOpenAI(temperature=0.9, model_name="gpt-4")
+
+        self.system_template_str = (
+            "SYSTEM: You are a helpful AI question answerer. Please answer 
+            "questions while satisfying the following requirements:\n"
+            "* You will think carefully about your answers\n"
+            "* You will only answer questions regarding the game Dungeon "
+            "Fighter Online Global (aka DFOG, DFO, Dungeon Fighter Online)\n"
+            "* Your answers will be concise\n"
+            "* Your will attempt to incorporate any relevant context that is "
+            "provided within the pair of triple backticks\n"
+            "* If you are unclear about what the user is asking, please ask "
+            "for clarification\n\n"
+            "Context:\n"
+            "```\n"
+            "{doc}\n"
+            "```\n"
+        )
+        self.human_template_str = "Q: {question}"
+
         asyncio.run(self._build_templates())
         asyncio.run(self._get_chroma_db())
+
+        db_uri = os.environ.get("DB_URI")
+        self.qna_db = QnADatabase(db_uri)
 
     async def _build_templates(self):
         """
         Build a PromptTemplate using the template string.
         """
-
         sys_template = SystemMessagePromptTemplate.from_template(
-            self.system_template_str
-        )
+            self.system_template_str)
         hum_template = HumanMessagePromptTemplate.from_template(
-            self.human_template_str
-        )
-        templates = [sys_template, hum_template]
-        self.chat_template = ChatPromptTemplate.from_messages(templates)
-    
-    @logger.log_execution_time
-    async def process_texts(self, texts: List[str]):
-        """
-        Process texts using the preprocessor and text_splitter.
-
-        Args:
-            texts (List[str]): A list of input texts.
-
-        Returns:
-            List[str]: A list of processed texts.
-        """
-        processed_texts = [self.preprocessor.preprocess(text) for text in texts]
-        self.docs = self.text_splitter.create_documents(processed_texts)
-        self.docs = self.text_splitter.split_documents(self.docs)
-        logger.debug('Texts finished processing')
+            self.human_template_str)
+        self.chat_template = ChatPromptTemplate.from_messages([sys_template,
+                                                               hum_template])
 
     async def _get_chroma_db(self):
         """
         Create a Chroma database if it does not already exist, or load an
         existing one.
-        
-        Args:
-            texts (List[str]): A list of documents.
-            persist_directory (str, optional): The directory to store the
-                                               database on disk. Defaults to
-                                               'db'.
-        Returns:
-            Chroma: A Chroma database.
         """
-        # Get the absolute path of the directory containing the script
         script_dir = os.path.dirname(os.path.abspath(__file__))
-        persist_directory = os.path.join(script_dir, '..', '..', '..', 'db')
+        persist_directory = os.path.join(script_dir, "..", "..", "..", "db")
         self.db = Chroma(persist_directory=persist_directory,
                          embedding_function=self.embedder)
-        logger.info('Existing DB loaded')
+        logger.info("Existing DB loaded")
 
     @logger.log_execution_time
     async def ask_doc_based_question(self, query: str) -> str:
         """
-        Ask a question based on a list of input texts and a query.
+        Ask a question based on a list of input texts
+                and a query.
 
         Args:
-            texts (List[str]): A list of input texts.
             query (str): The query to be asked.
 
         Returns:
@@ -131,8 +106,25 @@ class LangChainHandler:
         # Send prompt
         answer = await asyncio.to_thread(self.chat, msgs)
         answer = answer.content
-        # answer_match = re.search('"(.*)" additional_kwargs', answer.content)
-        # answer = answer_match.group(1)
         logger.info(f'LLM answered "{query}": "{answer}"')
-
+        
+        # Collecting question data
+        question_id = str(uuid4())
+        timestamp = datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%S.%fZ')
+        current_commit_hash = self._get_current_commit_hash()
+        current_commit_timestamp = self._get_current_commit_timestamp()
+        question_data = {
+            'id': question_id,
+            'query': query,
+            'answer': answer,
+            'timestamp': timestamp,
+            'commit_hash': current_commit_hash,
+            'commit_timestamp': current_commit_timestamp
+        }
+        # Send question data to the QnADatabase
+        async with self.qna_db:
+            await self.qna_db.create_tables()
+            await self.qna_db.insert_data('qna_results', question_data)
+        logger.debug('Question data inserted into the database')
+        
         return answer
