@@ -9,8 +9,8 @@ from discord import Intents, ApplicationContext, Interaction, Embed
 from discord.ext import commands
 from discord.ui import Modal, View, InputText, button
 
-from utils.lc_handler import LangChainHandler
-from utils.logger import CustomLogger
+from seria.utils.lc_handler import LangChainHandler
+from seria.utils.logger import CustomLogger
 
 
 # Load environment variables from .env file
@@ -63,7 +63,6 @@ class FeedbackView(View):
     """
     @button(style=discord.ButtonStyle.green, emoji="👍")
     async def up_button_callback(self,
-                                 button: button,
                                  interaction: Interaction):
         """
         The callback function for the "thumbs up" button.
@@ -81,7 +80,6 @@ class FeedbackView(View):
         
     @button(style=discord.ButtonStyle.red, emoji="👎")
     async def down_button_callback(self,
-                                   button: button,
                                    interaction: Interaction):
         """
         The callback function for the "thumbs down" button.

@@ -1,10 +1,12 @@
 import uuid
 import asyncio
-import asyncpg
 import subprocess
 from datetime import datetime
+from typing import Union, Dict, List
 
-from .logger import CustomLogger
+import asyncpg
+
+from seria.utils.logger import CustomLogger
 
 logger = CustomLogger(__file__)
 

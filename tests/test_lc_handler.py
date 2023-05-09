@@ -1,5 +1,5 @@
 import pytest
-from ..utils.lc_handler import LangChainHandler
+from seria.utils.lc_handler import LangChainHandler
 
 # Create a pytest fixture for the LangChainHandler instance
 @pytest.fixture

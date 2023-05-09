@@ -3,12 +3,13 @@ from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 import discord
-from discord.ext import test
+import discord.ext.test as dpytest
+import discord.ext.commands as commands
 
-from bot import bot, LC, ask, FeedbackView, ThumbsDownFeedbackModal
+from seria.bot import ask, FeedbackView, ThumbsDownFeedbackModal
+from seria.utils.lc_handler import LangChainHandler
 
-# Set up the test bot
-test_bot = test.TestBot(bot)
+LC = LangChainHandler()
 
 # Example question
 EXAMPLE_QUESTION = "What is the best class in Dungeon Fighter Online?"
@@ -20,14 +21,25 @@ interaction_mock = MagicMock(spec=discord.Interaction)
 application_context_mock = MagicMock(spec=discord.ApplicationContext)
 application_context_mock.user = "TestUser"
 
+# Define bot fixture
+@pytest.fixture
+async def bot():
+    intents = discord.Intents.default()
+    intents.members = True
+    intents.message_content = True
+    b = commands.Bot(command_prefix="!", intents=intents)
+    b.add_cog(LC)
+    await b._async_setup_hook()  # setup the loop
+    dpytest.configure(b)
+    return b
 
 @pytest.mark.asyncio
-async def test_ask_command():
+async def test_ask_command(bot):
     # Mock the LangChainHandler instance
     LC.ask_doc_based_question = AsyncMock(return_value="Answer")
 
     # Run the ask command with the test bot
-    await test_bot.invoke_command(f"/ask {EXAMPLE_QUESTION}")
+    await dpytest.message(f"/ask {EXAMPLE_QUESTION}")
 
     # Check if the ask command was executed and if LC.ask_doc_based_question
     # was called
@@ -35,7 +47,7 @@ async def test_ask_command():
     LC.ask_doc_based_question.assert_called_with(EXAMPLE_QUESTION)
 
 @pytest.mark.asyncio
-async def test_feedback_view_buttons():
+async def test_feedback_view_buttons(bot):
     feedback_view = FeedbackView()
 
     # Test up_button_callback
@@ -49,8 +61,8 @@ async def test_feedback_view_buttons():
         ThumbsDownFeedbackModal(title='ThumbsDownFeedbackModal'))
 
 @pytest.mark.asyncio
-async def test_thumbs_down_feedback_modal_callback():
-    feedback_modal = ThumbsDownFeedbackModal()
+async def test_thumbs_down_feedback_modal_callback(bot):
+    feedback_modal = ThumbsDownFeedbackModal(title="Test Title")
     feedback_modal.children = [MagicMock(value="Feedback message")]
 
     await feedback_modal.callback(interaction_mock)

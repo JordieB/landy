@@ -3,7 +3,7 @@ import uuid
 import asyncio
 from datetime import datetime
 import pytest
-from qna_database import QnADatabase
+from seria.utils.qna_database import QnADatabase
 
 # Replace with your PostgreSQL connection details
 DB_URI = os.environ.get('DB_URI')
