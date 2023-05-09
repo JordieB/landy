@@ -80,7 +80,7 @@ class LangChainHandler:
         """
         # Constructing the directory path for the Chroma DB
         script_dir = os.path.dirname(os.path.abspath(__file__))
-        persist_directory = os.path.join(script_dir, "..", "db")
+        persist_directory = os.path.join(script_dir, "..", "..", "db")
         # Creating a Chroma instance with the directory and the embedder
         self.db = Chroma(persist_directory=persist_directory,
                          embedding_function=self.embedder)
