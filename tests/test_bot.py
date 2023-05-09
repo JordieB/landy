@@ -6,8 +6,8 @@ import discord
 import discord.ext.test as dpytest
 import discord.ext.commands as commands
 
-from seria.bot import ask, FeedbackView, ThumbsDownFeedbackModal
-from seria.utils.lc_handler import LangChainHandler
+from landy.bot import ask, FeedbackView, ThumbsDownFeedbackModal
+from landy.utils.lc_handler import LangChainHandler
 
 LC = LangChainHandler()
 
