@@ -171,7 +171,7 @@ async def ask_error(ctx: discord.ApplicationContext, error):
         f"{ctx.selected_options} @ {now_tsstr} gave {ctx.user} the following "
         f"error:\n\n{error}```"
     )
-    await ctx.send(error_message)
+    await ctx.send_followup(error_message)
 
 # Run bot
 if __name__ == '__main__':
