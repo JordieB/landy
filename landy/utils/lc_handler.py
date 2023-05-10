@@ -53,12 +53,13 @@ class LangChainHandler:
         )
         self.human_template_str = "Q: {question}"
 
-        # Building the chat template and getting the Chroma DB
-        asyncio.run(self._build_templates())
-        asyncio.run(self._get_chroma_db())
+    async def __aenter__(self):
+        await self._build_templates()
+        await self._get_chroma_db()
+        return self
 
-        # Instantiate the QnADatabase with the environment variable 'DB_URI'
-        self.qna_db = QnADatabase(os.environ.get("DB_URI"))
+    async def __aexit__(self, exc_type, exc, tb):
+        pass
 
     async def _build_templates(self):
         """
@@ -139,9 +140,9 @@ class LangChainHandler:
             'commit_hash_timestamp': current_commit_timestamp
         }
         # Inserting the question data into the QnADatabase
-        async with self.qna_db:
-            await self.qna_db.create_tables()
-            await self.qna_db.insert_data('qna_results', question_data)
+        async with QnADatabase(os.environ.get("DB_URI")) as db:
+            await db.create_tables()
+            await db.insert_data('qna_results', question_data)
         logger.debug('Question data inserted into the database')
         
         # Returning the answer
