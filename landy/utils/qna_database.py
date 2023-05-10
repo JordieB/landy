@@ -89,7 +89,9 @@ class QnADatabase:
             # Table for storing user feedback on Q&A results
             await self.connection.execute('''
                 CREATE TABLE IF NOT EXISTS qna_feedback (
-                    question_uuid UUID PRIMARY KEY REFERENCES qna_results(question_uuid),
+                    feedback_uuid UUID PRIMARY KEY,
+                    question_uuid UUID REFERENCES qna_results(question_uuid),
+                    feedback_timestamp TIMESTAMPTZ NOT NULL,
                     is_positive BOOLEAN NOT NULL,
                     feedback_commentary TEXT
                 );
@@ -98,7 +100,7 @@ class QnADatabase:
             # Table for storing logs related to Q&A results
             await self.connection.execute('''
                 CREATE TABLE IF NOT EXISTS qna_logs (
-                    log_id UUID PRIMARY KEY,
+                    log_uuid UUID PRIMARY KEY,
                     question_uuid UUID REFERENCES qna_results(question_uuid),
                     log_level VARCHAR NOT NULL,
                     log_timestamp TIMESTAMPTZ NOT NULL,

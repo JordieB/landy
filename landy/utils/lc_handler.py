@@ -87,7 +87,8 @@ class LangChainHandler:
         logger.info("Existing DB loaded")
 
     @logger.log_execution_time
-    async def ask_doc_based_question(self, query: str) -> str:
+    async def ask_doc_based_question(self, query: str,
+                                     question_uuid: str) -> str:
         """
         Ask a question based on a list of input texts
                 and a query.
@@ -98,6 +99,9 @@ class LangChainHandler:
         Returns:
             str: The answer to the query based on the input texts.
         """
+        
+        # Generate question timestamp for DB
+        question_timestamp = datetime.utcnow()
 
         # Querying the Chroma DB for documents similar to the query
         result_docs = await asyncio.to_thread(self.db.similarity_search, query)
@@ -120,8 +124,6 @@ class LangChainHandler:
         
         # Collecting question data, including the ID, timestamp, commit hash, 
         # and commit timestamp
-        question_id = str(uuid4())
-        timestamp = datetime.utcnow()
         current_commit_hash =  await self.qna_db._get_current_commit_hash()
         current_commit_timestamp =  (
             await self.qna_db._get_current_commit_timestamp()
@@ -129,10 +131,10 @@ class LangChainHandler:
         current_commit_timestamp = datetime.strptime(
             current_commit_timestamp, "%a %b %d %H:%M:%S %Y %z")
         question_data = {
-            'question_uuid': question_id,
+            'question_uuid': question_uuid,
             'question': query,
             'answer': answer,
-            'question_timestamp': timestamp,
+            'question_timestamp': question_timestamp,
             'commit_hash': current_commit_hash,
             'commit_hash_timestamp': current_commit_timestamp
         }

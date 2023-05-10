@@ -1,5 +1,6 @@
 import os
 import json
+import uuid
 import traceback
 from datetime import datetime
 from dotenv import load_dotenv
@@ -11,6 +12,7 @@ from discord.ui import Modal, View, InputText, button
 
 from landy.utils.lc_handler import LangChainHandler
 from landy.utils.logger import CustomLogger
+from landy.utils.qna_database import QnADatabase
 
 
 # Load environment variables from .env file
@@ -27,14 +29,18 @@ bot = commands.Bot(intents=intents)
 # Create a LangChainHandler instance
 LC = LangChainHandler()
 
+# Create QnADatabase instance
+DB_URI = os.environ.get('DB_URI')
+
 # Set-up feedback modal for downvotes
 class ThumbsDownFeedbackModal(Modal):
     """
     A modal that is used to gather feedback from users who have marked the
     answer as "thumbs down."
     """
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, question_uuid, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
+        self.question_uuid = question_uuid
         self.add_item(InputText(label='Feedback? Resource links welcome!',
                                 style=discord.InputTextStyle.long))
 
@@ -49,6 +55,18 @@ class ThumbsDownFeedbackModal(Modal):
             interaction (Interaction): The user interaction that triggered the
                                        modal.
         """
+        # Record feedback in DB
+        feedback_data = {
+            'feedback_uuid': str(uuid.uuid4()),
+            'question_uuid': self.question_uuid,
+            'feedback_timestamp': datetime.utcnow(),
+            'is_positive': False,
+            'feedback_commentary': self.children[0].value
+        }
+        async with QnADatabase(DB_URI) as db:
+            await db.insert_data('qna_feedback', feedback_data)
+        logger.info(f'Question {self.question_uuid} provided negative feedback')
+        
         embed = Embed(title="Thank you for your feedback!")
         embed.add_field(name="We'll take a look at the following...",
                         value=self.children[0].value)
@@ -61,9 +79,12 @@ class FeedbackView(View):
 
     This view allows the user to provide feedback on the answer they received.
     """
+    def __init__(self, question_uuid, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.question_uuid = question_uuid
+
     @button(style=discord.ButtonStyle.green, emoji="👍")
-    async def up_button_callback(self,
-                                 interaction: Interaction):
+    async def up_button_callback(self, button, interaction: Interaction):
         """
         The callback function for the "thumbs up" button.
 
@@ -75,11 +96,27 @@ class FeedbackView(View):
             interaction (Interaction): The user interaction that triggered the
                                        view.
         """
-        await interaction.response.send_message("Glad it was helpful!",
-                                                ephemeral=False)
+        # Record feedback in DB
+        feedback_data = {
+            'feedback_uuid': str(uuid.uuid4()),
+            'question_uuid': self.question_uuid,
+            'feedback_timestamp': datetime.utcnow(),
+            'is_positive': True,
+            'feedback_commentary': None
+        }
+        async with QnADatabase(DB_URI) as db:
+            await db.insert_data('qna_feedback', feedback_data)
+        logger.info(f'Question {self.question_uuid} provided positive feedback')
+        
+        # Thank user for feedback
+        await interaction.response.send_message(
+            "Thanks, glad it was helpful!",
+            ephemeral=False
+        )
         
     @button(style=discord.ButtonStyle.red, emoji="👎")
     async def down_button_callback(self,
+                                   button,
                                    interaction: Interaction):
         """
         The callback function for the "thumbs down" button.
@@ -93,7 +130,8 @@ class FeedbackView(View):
                                        view.
         """
         await interaction.response.send_modal(
-            ThumbsDownFeedbackModal(title='ThumbsDownFeedbackModal'))
+            ThumbsDownFeedbackModal(title='ThumbsDownFeedbackModal',
+                                    question_uuid=self.question_uuid))
 
 # Log when a bot is ready
 @bot.event
@@ -106,7 +144,7 @@ async def on_ready():
     logger.info(f"{bot.user} is ready and online!")
 
 # Ask command
-@bot.slash_command(description='Ask Seria a DFO-related question')
+@bot.slash_command(description='Ask Landy a DFO-related question')
 async def ask(ctx: ApplicationContext, *, question: str):
     """
     The function that handles the "ask" command.
@@ -119,23 +157,28 @@ async def ask(ctx: ApplicationContext, *, question: str):
         ctx (ApplicationContext): The context of the command.
         question (str): The query that the user entered.
     """
-    global posts
     global LC
     
     # Show user bot is thinking
     await ctx.defer(ephemeral=False)
     
     # Get the answer for the query based on the documents
-    logger.info(f'Starting to answer a question from {ctx.user}: {question}')
-    answer = await LC.ask_doc_based_question(question)
+    
+    question_uuid = str(uuid.uuid4())
+    logger.info((
+        f'Starting to answer question {question_uuid} from {ctx.user}: '
+        f'"{question}"'
+    ))
+    answer = await LC.ask_doc_based_question(question, question_uuid)
 
     # Send the answer back to the user
     follow_up_text = (f'> Q: {question}\n\nAnswer below:\n\n{answer}\n\n'
-                      f'_Please give this answer feedback with the buttons'
-                      f' below_!')
+                      f'*Please give this answer feedback with the buttons'
+                      f' below!*')
     await ctx.send_followup(follow_up_text,
                             ephemeral=False,
-                            view=FeedbackView(timeout=None))
+                            view=FeedbackView(question_uuid=question_uuid,
+                                              timeout=None))
 
 # Ask command error handler
 @ask.error
