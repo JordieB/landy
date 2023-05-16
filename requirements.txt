@@ -1,7 +1,4 @@
-# Local package install
 -e .
-
-# Internal requirements
 pytest
 pytest-asyncio
 tiktoken
