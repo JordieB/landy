@@ -3,13 +3,7 @@ from setuptools import setup, find_packages
 
 # get the path of setup.py file
 here = os.path.abspath(os.path.dirname(__file__))
-req_fp = os.path.join(here, 'requirements.txt')
 readme_fp = os.path.join(here, 'README.md')
-
-# read the requirements.txt file located in the parent directory of setup.py file
-with open(req_fp, encoding='utf-8') as f:
-    requirements = f.read().split('\n')
-    install_requires = [line.strip() for line in f if not line.startswith(('-','#'))]
 
 with open(readme_fp, "r") as fh:
     long_description = fh.read()
@@ -24,7 +18,6 @@ setup(
     long_description_content_type="text/markdown",
     url='https://github.com/JordieB/landy',
     packages=find_packages(),
-    install_requires=install_requires,
     classifiers=[
         'Development Status :: 3 - Alpha',
         'Intended Audience :: Developers',

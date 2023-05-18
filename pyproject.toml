@@ -1,6 +1,20 @@
 [build-system]
 requires = [
     "setuptools",
-    "wheel"
+    "wheel",
+    "pytest",
+    "pytest-asyncio",
+    "tiktoken",
+    "openai",
+    "chromadb",
+    "langchain",
+    "beautifulsoup4",
+    "nltk",
+    "discord.py",
+    "py-cord",
+    "dpytest",
+    "asyncpg",
+    "scrapy",
+    "scrapy-fake-useragent"
 ]
 build-backend = "setuptools.build_meta"
