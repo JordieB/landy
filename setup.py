@@ -1,10 +1,19 @@
+import os
+import pathlib
 from setuptools import setup, find_packages
 
-with open("./README.md", "r") as fh:
-    long_description = fh.read()
-    
-with open('./requirements.txt') as f:
+# get the path of setup.py file
+here = pathlib.Path(__file__).parent.resolve()
+req_fp = os.path.join(here.parent, 'requirements.txt')
+readme_fp = os.path.join(here.parent, 'README.md')
+
+# read the requirements.txt file located in the parent directory of setup.py file
+with open(req_fp, encoding='utf-8') as f:
+    requirements = f.read().split('\n')
     install_requires = [line.strip() for line in f if not line.startswith(('-','#'))]
+
+with open(readme_fp, "r") as fh:
+    long_description = fh.read()
 
 setup(
     name='Landy',
