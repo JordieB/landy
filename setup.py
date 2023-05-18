@@ -3,8 +3,8 @@ from setuptools import setup, find_packages
 
 # get the path of setup.py file
 here = os.path.abspath(os.path.dirname(__file__))
-req_fp = os.path.join(here.parent, 'requirements.txt')
-readme_fp = os.path.join(here.parent, 'README.md')
+req_fp = os.path.join(here, 'requirements.txt')
+readme_fp = os.path.join(here, 'README.md')
 
 # read the requirements.txt file located in the parent directory of setup.py file
 with open(req_fp, encoding='utf-8') as f:
