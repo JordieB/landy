@@ -4,10 +4,14 @@ This is a Discord bot that uses LangChain and vector stores to answer questions 
 
 ## Installation
 
-1. Clone the repository.
-2. Install the required dependencies using `pip install -r requirements.txt`.
-3. Create a `.env` file in the root directory with your Discord bot token as well as your OpenAI API token to use GPT3 to help answer questions. These tokens should be in the following format `DISCORD_API_TOKEN=your_bot_token_here`.
-4. Run the bot using `python bot.py`.
+1. Clone the repository and change your working directory to the repo
+2. Install the project using
+```bash
+python -m build
+pip install dist/*.whl
+```
+3. Create a `.env` file in the root directory with your Discord bot token as well as your OpenAI API token to use GPT4 to help answer questions. These tokens should be in the following format `DISCORD_API_TOKEN=your_bot_token_here`.
+4. Run the bot using `python landy/bot.py`.
 
 ## Testing
 
