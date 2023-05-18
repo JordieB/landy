@@ -2,6 +2,9 @@ from setuptools import setup, find_packages
 
 with open("./README.md", "r") as fh:
     long_description = fh.read()
+    
+with open('requirements.txt') as f:
+    install_requires = [line.strip() for line in f if not line.startswith(('-','#'))]
 
 setup(
     name='Landy',
@@ -13,9 +16,7 @@ setup(
     long_description_content_type="text/markdown",
     url='https://github.com/JordieB/landy',
     packages=find_packages(),
-    install_requires=[
-        line.strip() for line in open('requirements.txt')
-    ],
+    install_requires=install_requires,
     classifiers=[
         'Development Status :: 3 - Alpha',
         'Intended Audience :: Developers',
