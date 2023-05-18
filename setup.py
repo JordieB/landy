@@ -1,9 +1,9 @@
 from setuptools import setup, find_packages
 
-with open("README.md", "r") as fh:
+with open("./README.md", "r") as fh:
     long_description = fh.read()
     
-with open('requirements.txt') as f:
+with open('./requirements.txt') as f:
     install_requires = [line.strip() for line in f if not line.startswith(('-','#'))]
 
 setup(
