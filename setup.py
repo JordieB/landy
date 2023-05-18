@@ -1,9 +1,8 @@
 import os
-import pathlib
 from setuptools import setup, find_packages
 
 # get the path of setup.py file
-here = pathlib.Path(__file__).parent.resolve()
+here = os.path.abspath(os.path.dirname(__file__))
 req_fp = os.path.join(here.parent, 'requirements.txt')
 readme_fp = os.path.join(here.parent, 'README.md')
 
