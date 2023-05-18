@@ -8,6 +8,7 @@ from typing import Union, Dict, List
 import asyncpg
 
 from landy.utils.logger import CustomLogger
+import landy
 
 logger = CustomLogger(__file__)
 
@@ -52,7 +53,7 @@ class QnADatabase:
         return await asyncio.to_thread(
             lambda: subprocess.check_output(
                 ['git', 'rev-parse', 'HEAD'],
-                cwd=os.path.dirname(os.path.abspath(__file__))).decode().strip()
+                cwd=os.path.dirname(os.path.abspath(landy.__file__))).decode().strip()
         )
 
     async def _get_current_commit_timestamp(self):

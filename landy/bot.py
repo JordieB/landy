@@ -25,9 +25,6 @@ intents = Intents.default()
 intents.message_content = True
 bot = commands.Bot(intents=intents)
 
-# Create a LangChainHandler instance
-LC = LangChainHandler()
-
 # Create QnADatabase instance
 DB_URI = os.environ.get('DB_URI')
 
@@ -156,7 +153,6 @@ async def ask(ctx: ApplicationContext, *, question: str):
         ctx (ApplicationContext): The context of the command.
         question (str): The query that the user entered.
     """
-    global LC
     
     # Show user bot is thinking
     await ctx.defer(ephemeral=False)
@@ -168,16 +164,18 @@ async def ask(ctx: ApplicationContext, *, question: str):
         f'Starting to answer question {question_uuid} from {ctx.user}: '
         f'"{question}"'
     ))
-    answer = await LC.ask_doc_based_question(question, question_uuid)
+    
+    async with LangChainHandler() as LC:
+        answer = await LC.ask_doc_based_question(question, question_uuid)
 
-    # Send the answer back to the user
-    follow_up_text = (f'> Q: {question}\n\nAnswer below:\n\n{answer}\n\n'
-                      f'*Please give this answer feedback with the buttons'
-                      f' below!*')
-    await ctx.send_followup(follow_up_text,
-                            ephemeral=False,
-                            view=FeedbackView(question_uuid=question_uuid,
-                                              timeout=None))
+        # Send the answer back to the user
+        follow_up_text = (f'> Q: {question}\n\nAnswer below:\n\n{answer}\n\n'
+                          f'*Please give this answer feedback with the buttons'
+                          f' below!*')
+        await ctx.send_followup(follow_up_text,
+                                ephemeral=False,
+                                view=FeedbackView(question_uuid=question_uuid,
+                                                timeout=None))
 
 # Ask command error handler
 @ask.error

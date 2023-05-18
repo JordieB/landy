@@ -1,7 +1,6 @@
 import os
 import asyncio
 from typing import List
-from uuid import uuid4
 from datetime import datetime
 
 # Importing necessary modules from the langchain and seria libraries.
@@ -17,6 +16,7 @@ from langchain.prompts.chat import (
 
 from landy.utils.logger import CustomLogger
 from landy.utils.qna_database import QnADatabase
+import landy
 
 # Instantiating the logger
 logger = CustomLogger(__name__)
@@ -80,8 +80,8 @@ class LangChainHandler:
         existing one.
         """
         # Constructing the directory path for the Chroma DB
-        script_dir = os.path.dirname(os.path.abspath(__file__))
-        persist_directory = os.path.join(script_dir, "..", "..", "db")
+        here = os.path.dirname(os.path.abspath(landy.__file__)) # landy/landy
+        persist_directory = os.path.join(here, "..", "db")
         # Creating a Chroma instance with the directory and the embedder
         self.db = Chroma(persist_directory=persist_directory,
                          embedding_function=self.embedder)
@@ -125,23 +125,23 @@ class LangChainHandler:
         
         # Collecting question data, including the ID, timestamp, commit hash, 
         # and commit timestamp
-        current_commit_hash =  await self.qna_db._get_current_commit_hash()
-        current_commit_timestamp =  (
-            await self.qna_db._get_current_commit_timestamp()
-        )
-        current_commit_timestamp = datetime.strptime(
-            current_commit_timestamp, "%a %b %d %H:%M:%S %Y %z")
-        question_data = {
-            'question_uuid': question_uuid,
-            'question': query,
-            'answer': answer,
-            'question_timestamp': question_timestamp,
-            'commit_hash': current_commit_hash,
-            'commit_hash_timestamp': current_commit_timestamp
-        }
         # Inserting the question data into the QnADatabase
         async with QnADatabase(os.environ.get("DB_URI")) as db:
             await db.create_tables()
+            current_commit_hash =  await db._get_current_commit_hash()
+            current_commit_timestamp =  (
+                await db._get_current_commit_timestamp()
+            )
+            current_commit_timestamp = datetime.strptime(
+                current_commit_timestamp, "%a %b %d %H:%M:%S %Y %z")
+            question_data = {
+                'question_uuid': question_uuid,
+                'question': query,
+                'answer': answer,
+                'question_timestamp': question_timestamp,
+                'commit_hash': current_commit_hash,
+                'commit_hash_timestamp': current_commit_timestamp
+            }
             await db.insert_data('qna_results', question_data)
         logger.debug('Question data inserted into the database')
         
