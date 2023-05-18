@@ -27,13 +27,11 @@ chromadb = "*"
 langchain = "*"
 beautifulsoup4 = "*"
 nltk = "*"
-discord-py = "*"
-py-cord = "*"
-dpytest = "*"
 asyncpg = "*"
 scrapy = "*"
 scrapy-fake-useragent = "*"
 python-dotenv = "*"
+py-cord = "*"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
